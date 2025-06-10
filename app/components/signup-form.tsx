@@ -2,11 +2,12 @@ import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-
+import type { SignUpFormErrors } from "~/.server/types";
 export function SignupForm({
   className,
+  formErrors,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & { formErrors?: SignUpFormErrors }) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
@@ -25,7 +26,13 @@ export function SignupForm({
             required
             defaultValue={"demo"}
             name="username"
+            aria-invalid={formErrors?.username ? true : false}
           />
+          {formErrors?.username ? (
+            <span className="text-destructive text-xs -mt-2">
+              {formErrors.username}
+            </span>
+          ) : null}
         </div>
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
@@ -36,7 +43,13 @@ export function SignupForm({
             required
             defaultValue={"demo@example.com"}
             name="email"
+            aria-invalid={formErrors?.email ? true : false}
           />
+          {formErrors?.email ? (
+            <span className="text-destructive text-xs -mt-2">
+              {formErrors.email}
+            </span>
+          ) : null}
         </div>
         <div className="grid gap-3">
           <Label htmlFor="password">Password</Label>
@@ -46,7 +59,13 @@ export function SignupForm({
             required
             defaultValue={"Demo@1234"}
             name="password"
+            aria-invalid={formErrors?.password ? true : false}
           />
+          {formErrors?.password ? (
+            <span className="text-destructive text-xs -mt-2">
+              {formErrors.password}
+            </span>
+          ) : null}
         </div>
         <div className="grid gap-3">
           <Label htmlFor="confirmPassword">Confirm Password</Label>
