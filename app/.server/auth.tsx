@@ -1,5 +1,10 @@
 export const danger = "danger zone";
 import crypto from "node:crypto";
+import type { AuthCookie } from "./types";
+import { authCookie } from "./cookies";
+import { redirect } from "react-router";
+import { AUTH_COOKIE_EXPIRY, authCache } from "./cache";
+import { prisma } from "./prisma";
 
 /**
  * Hash a password using scrypt
@@ -51,4 +56,93 @@ export function createRandomBytes({
   length?: number;
 }) {
   return crypto.randomBytes(length).toString(format);
+}
+
+/**
+ * Require authentication and throws a redirect to login if not authenticated
+ * @param request - The request object
+ * @returns The auth cookie. If the auth cookie is not found or expired etc, the function will throw a redirect to /login
+ */
+export async function requireAuthRedirect(
+  request: Request
+): Promise<AuthCookie> {
+  const auth: AuthCookie = await authCookie.parse(
+    request.headers.get("Cookie")
+  );
+  if (!auth) {
+    throw redirect("/login", {
+      headers: {
+        "Set-Cookie": await authCookie.serialize("", {
+          maxAge: 0,
+        }),
+      },
+    });
+  }
+  const { userId, sessionId } = auth;
+  if (!sessionId) {
+    throw redirect("/login", {
+      headers: {
+        "Set-Cookie": await authCookie.serialize("", {
+          maxAge: 0,
+        }),
+      },
+    });
+  }
+
+  // --- CACHE LOGIC ---
+  const cached = authCache.get(sessionId);
+  if (cached) {
+    if (cached.expiresAt > new Date()) {
+      console.log("Auth cache hit");
+      return cached.authCookie;
+    } else {
+      authCache.delete(sessionId);
+    }
+  }
+
+  console.log("Auth cache Miss");
+
+  // --- DB LOGIC ---
+  const dbSession = await prisma.session.findUnique({
+    where: {
+      sessionId: sessionId,
+      userId: userId,
+      expiresAt: { gt: new Date() },
+    },
+    select: {
+      userId: true,
+      sessionId: true,
+      expiresAt: true,
+      user: {
+        select: {
+          email: true,
+          username: true,
+          avatarURL: true,
+        },
+      },
+    },
+  });
+
+  if (!dbSession) {
+    throw redirect("/login", {
+      headers: {
+        "Set-Cookie": await authCookie.serialize("", {
+          maxAge: 0,
+        }),
+      },
+    });
+  }
+  const cookie: AuthCookie = {
+    userId: dbSession.userId,
+    email: dbSession.user.email,
+    username: dbSession.user.username,
+    sessionId: dbSession.sessionId,
+    avatarURL: dbSession.user.avatarURL,
+  };
+  authCache.set(dbSession.sessionId, {
+    expiresAt: new Date(Date.now() + AUTH_COOKIE_EXPIRY),
+    authCookie: cookie,
+  });
+
+  return cookie;
 }
