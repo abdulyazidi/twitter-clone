@@ -10,12 +10,17 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-
+import { danger } from "~/.server/auth";
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "New React Router App" },
     { name: "description", content: "Welcome to React Router!" },
   ];
+}
+
+export async function loader() {
+  console.log("loader ran", danger);
+  return null;
 }
 
 export default function Home() {
