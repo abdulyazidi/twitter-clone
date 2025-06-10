@@ -1,21 +1,8 @@
 import { GalleryVerticalEnd } from "lucide-react";
-import type { Route } from "./+types/signup";
-import { SignupForm } from "~/components/signup-form";
-import { Form } from "react-router";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
-  // Add your loader logic here
-  return null;
-}
+import { LoginForm } from "~/components/login-form";
 
-export async function action({ request, params }: Route.ActionArgs) {
-  // Add your action logic here
-  const formData = await request.formData();
-  console.log("Action ran", formData);
-  return null;
-}
-
-export default function SignupPage({ loaderData }: Route.ComponentProps) {
+export default function LoginPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2 bg-black">
       <div className="flex flex-col gap-4 p-6 md:p-10 border-r">
@@ -28,9 +15,9 @@ export default function SignupPage({ loaderData }: Route.ComponentProps) {
           </a>
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <Form className="w-full max-w-xs" method="POST">
-            <SignupForm />
-          </Form>
+          <div className="w-full max-w-xs">
+            <LoginForm />
+          </div>
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
