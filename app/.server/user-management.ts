@@ -1,6 +1,6 @@
-import { createRandomBytes, scryptHash } from "./auth";
+import { createRandomBytes, SafeComparePasswords, scryptHash } from "./auth";
 import { prisma } from "./prisma";
-import type { SignUpFormErrors } from "./types";
+import type { AuthCookie, LoginFormErrors, SignUpFormErrors } from "./types";
 import validator from "validator";
 
 /**
@@ -9,6 +9,7 @@ import validator from "validator";
 export const DEFAULT_SESSION_EXPIRY_DATE = new Date(
   Date.now() + 30 * 24 * 60 * 60 * 1000
 );
+export const GENERAL_LOGIN_ERROR_STATEMENT = "Incorrect user details";
 
 /**
  * Create a new user
@@ -19,6 +20,7 @@ export async function createNewUser({
   email,
   displayName,
   password,
+  confirmPassword,
   ipAddress,
   userAgent,
 }: {
@@ -26,19 +28,20 @@ export async function createNewUser({
   email: string;
   displayName: string;
   password: string;
+  confirmPassword: string;
   userAgent?: string;
   ipAddress?: string;
 }) {
   const GENERAL_STATEMENT =
     "Error creating user, Contact support if this persists";
-  console.log({ username, password, email }, "wtf");
   const { vUsername, vEmail, formErrors } = validate_signup_form({
     username,
     password,
     email,
+    confirmPassword,
   });
   if (formErrors.hasErrors) {
-    console.log('lmfao"');
+    console.log("Sign up validation error", formErrors);
     return { user: null, formErrors };
   }
   let userExists;
@@ -141,16 +144,19 @@ export async function createNewUser({
 export function validate_signup_form({
   username,
   password,
+  confirmPassword,
   email,
 }: {
   username: string;
   password: string;
+  confirmPassword: string;
   email: string;
 }) {
   const formErrors: SignUpFormErrors = {
     username: "",
     email: "",
     password: "",
+    confirmPassword: "",
     general: "",
     hasErrors: false,
   };
@@ -174,11 +180,163 @@ export function validate_signup_form({
     formErrors.hasErrors = true;
   }
 
+  if (password !== confirmPassword) {
+    formErrors.hasErrors = true;
+    formErrors.confirmPassword = "Repeat password does not match";
+  }
+
   if (formErrors.hasErrors) {
     console.log("Sign up Form errors:", formErrors);
   }
 
   return { vUsername, vEmail, formErrors };
+}
+
+/**
+ * Login a user
+ * @param username_email - The username or email of the user
+ * @param password - The password of the user
+ * @returns The user and form errors. If there is an error, the user will be null and the form errors will have the error message otherwise it will return the auth cookie and form errors
+ */
+export async function loginUser({
+  username_email,
+  password,
+}: {
+  username_email: string;
+  password: string;
+}): Promise<{ auth: AuthCookie | null; formErrors: LoginFormErrors }> {
+  console.log("loginUser", username_email, password);
+  const formErrors: LoginFormErrors = {
+    username_email: "",
+    password: "",
+    general: "",
+    hasErrors: false,
+  };
+  if (!username_email || !password) {
+    formErrors.general = GENERAL_LOGIN_ERROR_STATEMENT;
+    formErrors.hasErrors = true;
+    return { auth: null, formErrors };
+  }
+
+  // check if it's an email or a username entered
+  const selectOptions = {
+    id: true,
+    email: true,
+    username: true,
+    passwordHash: true,
+    salt: true,
+    avatarURL: true,
+  };
+
+  let user;
+  if (validator.isEmail(username_email)) {
+    try {
+      user = await prisma.user.findUnique({
+        where: {
+          email: username_email,
+        },
+        select: selectOptions,
+      });
+    } catch (error) {
+      console.error(
+        "Internal Server Error, Contact support if this presists - Email login"
+      );
+      (formErrors.hasErrors = true),
+        (formErrors.general = GENERAL_LOGIN_ERROR_STATEMENT);
+      return { auth: null, formErrors };
+    }
+  } else {
+    try {
+      user = await prisma.user.findUnique({
+        where: {
+          username: username_email,
+        },
+        select: selectOptions,
+      });
+    } catch (error) {
+      console.error(
+        "Internal Server Error, Contact support if this presists - Username login"
+      );
+      (formErrors.hasErrors = true),
+        (formErrors.general = GENERAL_LOGIN_ERROR_STATEMENT);
+      return { auth: null, formErrors };
+    }
+  }
+
+  // if no user found, return error
+  if (!user) {
+    //Perform fake password comparison to prevent timing attack vulnerability / leaking no user
+    const dummyRandomPass =
+      "a2VTzlVMypnht5I6ySoDHUTREHldaFjhucV8QmO6_W450V5BK1A5HW5px1XwMmmtHNf3dRauhKD71qr-R9NbvQ";
+    const dummySalt = "dummy_salt_value";
+
+    try {
+      const fake = SafeComparePasswords({
+        password: password,
+        passwordHash: dummyRandomPass,
+        salt: dummySalt,
+      });
+      // this could throw an error if after hashing, length isn't the same
+    } catch (error) {
+      console.error("Error comparing passwords", error);
+    }
+
+    formErrors.general = GENERAL_LOGIN_ERROR_STATEMENT;
+    formErrors.hasErrors = true;
+    return { auth: null, formErrors };
+  }
+
+  const authenticated = SafeComparePasswords({
+    password,
+    salt: user.salt,
+    passwordHash: user.passwordHash,
+  });
+
+  if (!authenticated) {
+    formErrors.general = GENERAL_LOGIN_ERROR_STATEMENT;
+    formErrors.hasErrors = true;
+    return { auth: null, formErrors };
+  }
+
+  // if authenticated, create a new sessionId -> store in DB -> and return authCookie object
+  const sessionId = createRandomBytes({ format: "base64url", length: 32 }); // 32 bytes = 256bit entropy.. 16 = 128bit
+  let session;
+  try {
+    session = await prisma.session.create({
+      data: {
+        sessionId,
+        expiresAt: DEFAULT_SESSION_EXPIRY_DATE,
+        userId: user.id,
+      },
+      select: {
+        user: {
+          select: {
+            email: true,
+            username: true,
+            id: true,
+            avatarURL: true,
+          },
+        },
+        sessionId: true,
+        expiresAt: true,
+      },
+    });
+  } catch (error) {
+    console.error("failed creating session while logging in", error);
+    return { auth: null, formErrors };
+  }
+  session;
+  const auth: AuthCookie = {
+    email: session.user.email,
+    sessionId: session.sessionId,
+    username: session.user.username,
+    userId: session.user.id,
+    avatarURL: session.user.avatarURL,
+  };
+  return {
+    auth: auth,
+    formErrors,
+  };
 }
 
 export function validateUsername(username: string): {

@@ -146,3 +146,30 @@ export async function requireAuthRedirect(
 
   return cookie;
 }
+
+// Compare Hash plaintext with provided salt and compare with given hash
+
+/**
+ * Hashes a plaintext password with the given salt and compares it with a hashed password
+ * @param password - The plaintext password
+ * @param salt - The salt to use. If not provided, a new one will be generated
+ * @param passwordHash - The hashed password
+ * @returns True if the password is correct, false otherwise
+ */
+export function SafeComparePasswords({
+  password,
+  salt,
+  passwordHash,
+}: {
+  password: string;
+  salt: string;
+  passwordHash: string;
+}): boolean {
+  //
+  const { passwordHash: inputHashed } = scryptHash({ password, salt });
+  const authenticated = crypto.timingSafeEqual(
+    Buffer.from(inputHashed),
+    Buffer.from(passwordHash)
+  );
+  return authenticated;
+}

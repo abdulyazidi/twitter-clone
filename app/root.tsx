@@ -1,5 +1,6 @@
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
@@ -36,12 +37,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <Link to={"/login"}>Login</Link>
+        <Link to={"/signup"}>Signup</Link>
+        <Link to={"/Logout"}>Logout</Link>
       </body>
     </html>
   );
 }
 
-export default function App() {
+export default function App({ loaderData }: Route.ComponentProps) {
   return <Outlet />;
 }
 

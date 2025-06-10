@@ -75,7 +75,13 @@ export function SignupForm({
             required
             defaultValue={"Demo@1234"}
             name="confirmPassword"
+            aria-invalid={formErrors?.confirmPassword ? true : false}
           />
+          {formErrors?.password ? (
+            <span className="text-destructive text-xs -mt-2">
+              {formErrors.confirmPassword}
+            </span>
+          ) : null}
         </div>
         <Button type="submit" className="w-full">
           Create Account

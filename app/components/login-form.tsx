@@ -2,29 +2,38 @@ import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import type { LoginFormErrors } from "~/.server/types";
 
 export function LoginForm({
   className,
+  formErrors,
   ...props
-}: React.ComponentProps<"form">) {
+}: React.ComponentProps<"div"> & {
+  formErrors?: LoginFormErrors;
+}) {
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Login to your account</h1>
         <p className="text-muted-foreground text-sm text-balance">
-          Enter your email below to login to your account
+          Enter your username or email below to login to your account
         </p>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="username_email">Username or Email</Label>
           <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
+            id="username_email"
+            type="text"
+            defaultValue={`demo@example.com`}
+            placeholder="demo@example.com"
             required
-            name="email"
+            name="username_email"
+            aria-invalid={formErrors?.hasErrors}
           />
+          {formErrors?.hasErrors && (
+            <p className="text-destructive text-sm">{formErrors.general}</p>
+          )}
         </div>
         <div className="grid gap-3">
           <div className="flex items-center">
@@ -32,11 +41,22 @@ export function LoginForm({
             <a
               href="#"
               className="ml-auto text-sm underline-offset-4 hover:underline"
+              aria-disabled={true}
             >
               Forgot your password?
             </a>
           </div>
-          <Input id="password" type="password" required name="password" />
+          <Input
+            id="password"
+            type="password"
+            required
+            name="password"
+            defaultValue={"Demo@1234"}
+            aria-invalid={formErrors?.hasErrors}
+          />
+          {formErrors?.hasErrors && (
+            <p className="text-destructive text-sm">{formErrors.general}</p>
+          )}
         </div>
         <Button type="submit" className="w-full">
           Login
@@ -62,6 +82,6 @@ export function LoginForm({
           Sign up
         </a>
       </div>
-    </form>
+    </div>
   );
 }

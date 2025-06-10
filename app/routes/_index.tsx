@@ -28,10 +28,7 @@ export default function Home() {
   return (
     <div>
       Home
-      <div className="flex flex-col gap-8">
-        <Link to={"/login"}>Login</Link>
-        <Link to={"/signup"}>Signup</Link>
-      </div>
+      <div className="flex flex-col gap-8"></div>
     </div>
   );
 }

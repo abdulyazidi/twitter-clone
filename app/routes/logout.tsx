@@ -2,8 +2,10 @@ import { GalleryVerticalEnd } from "lucide-react";
 import type { Route } from "./+types/signup";
 import { SignupForm } from "~/components/signup-form";
 import { Form, redirect } from "react-router";
-import { createNewUser } from "~/.server/user-management";
 import { authCookie } from "~/.server/cookies";
+import { requireAuthRedirect } from "~/.server/auth";
+import { prisma } from "~/.server/prisma";
+import { Button } from "~/components/ui/button";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   // Add your loader logic here
@@ -12,39 +14,31 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   // Add your action logic here
-  const formData = await request.formData();
-  const username = formData.get("username")?.toString() || "";
-  const email = formData.get("email")?.toString() || "";
-  const displayName = username;
-  const password = formData.get("password")?.toString() || "";
-  const confirmPassword = formData.get("confirmPassword")?.toString() || "";
-  console.log("Action ran", username, email, displayName, password);
-  const { user, formErrors } = await createNewUser({
-    username,
-    email,
-    displayName,
-    password,
-    confirmPassword,
-  });
-  if (formErrors.hasErrors || !user) {
-    console.log("Form errored", formErrors);
-    console.log(formData);
-    return { user: null, formErrors };
+  const auth = await requireAuthRedirect(request);
+  try {
+    const user = await prisma.session.update({
+      where: {
+        sessionId: auth.sessionId,
+        userId: auth.userId,
+      },
+      data: {
+        expiresAt: new Date(Date.now() - 1000),
+      },
+    });
+    console.log("session gone");
+  } catch (error) {
+    console.error("Error updating session");
   }
-
   return redirect("/", {
     headers: {
-      "Set-Cookie": await authCookie.serialize({
-        userId: user.id,
-        username: user.username,
-        email: user.email,
-        sessionId: user.sessions[0].sessionId,
+      "Set-Cookie": await authCookie.serialize("", {
+        maxAge: 0,
       }),
     },
   });
 }
 
-export default function SignupPage({
+export default function LogoutPage({
   loaderData,
   actionData,
 }: Route.ComponentProps) {
@@ -61,7 +55,7 @@ export default function SignupPage({
         </div>
         <div className="flex flex-1 items-center justify-center">
           <Form className="w-full max-w-xs" method="POST">
-            <SignupForm formErrors={actionData?.formErrors} />
+            <Button type="submit">Logout</Button>
           </Form>
         </div>
       </div>
