@@ -9,20 +9,24 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^6.9.0",
     "@prisma/client": "^6.9.0",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-router/fs-routes": "^7.6.2",
     "@react-router/node": "^7.5.3",
     "@react-router/serve": "^7.5.3",
+    "@types/validator": "^13.15.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "isbot": "^5.1.27",
     "lucide-react": "^0.513.0",
+    "pg": "^8.16.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.5.3",
-    "tailwind-merge": "^3.3.0"
+    "tailwind-merge": "^3.3.0",
+    "validator": "^13.15.15"
   },
   "devDependencies": {
     "@react-router/dev": "^7.5.3",

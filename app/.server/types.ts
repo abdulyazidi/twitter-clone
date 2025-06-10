@@ -5,3 +5,11 @@ export type AuthCookie = {
   sessionId: string;
   avatarURL?: string | null | undefined;
 };
+
+export type SignUpFormErrors = {
+  username: string;
+  email: string;
+  password: string;
+  general: string;
+  hasErrors: boolean;
+};

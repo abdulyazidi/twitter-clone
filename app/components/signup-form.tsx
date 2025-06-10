@@ -17,14 +17,14 @@ export function SignupForm({
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">
-          <Label htmlFor="name">Full Name</Label>
+          <Label htmlFor="username">Username</Label>
           <Input
-            id="name"
+            id="username"
             type="text"
-            placeholder="John Doe"
+            placeholder="JohnDoe"
             required
             defaultValue={"demo"}
-            name="name"
+            name="username"
           />
         </div>
         <div className="grid gap-3">

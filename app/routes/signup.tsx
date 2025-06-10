@@ -1,7 +1,9 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import type { Route } from "./+types/signup";
 import { SignupForm } from "~/components/signup-form";
-import { Form } from "react-router";
+import { Form, redirect } from "react-router";
+import { createNewUser } from "~/.server/user-management";
+import { authCookie } from "~/.server/cookies";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   // Add your loader logic here
@@ -11,8 +13,34 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export async function action({ request, params }: Route.ActionArgs) {
   // Add your action logic here
   const formData = await request.formData();
-  console.log("Action ran", formData);
-  return null;
+  const username = formData.get("username")?.toString() || "";
+  const email = formData.get("email")?.toString() || "";
+  const displayName = username;
+  const password = formData.get("password")?.toString() || "";
+
+  console.log("Action ran", username, email, displayName, password);
+  const { user, formErrors } = await createNewUser({
+    username,
+    email,
+    displayName,
+    password,
+  });
+  if (formErrors.hasErrors || !user) {
+    console.log("Form errored", formErrors);
+    console.log(formData);
+    return { user: null, formErrors };
+  }
+
+  return redirect("/", {
+    headers: {
+      "Set-Cookie": await authCookie.serialize({
+        userId: user.id,
+        username: user.username,
+        email: user.email,
+        sessionId: user.sessions[0].sessionId,
+      }),
+    },
+  });
 }
 
 export default function SignupPage({ loaderData }: Route.ComponentProps) {
