@@ -19,7 +19,6 @@ export async function action({ request, params }: Route.ActionArgs) {
   const password = formData.get("password")?.toString() || "";
 
   const { auth, formErrors } = await loginUser({ username_email, password });
-  console.log("", formErrors, auth);
   if (formErrors.hasErrors || !auth) {
     return { formErrors, auth: null };
   }

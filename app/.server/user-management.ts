@@ -205,7 +205,6 @@ export async function loginUser({
   username_email: string;
   password: string;
 }): Promise<{ auth: AuthCookie | null; formErrors: LoginFormErrors }> {
-  console.log("loginUser", username_email, password);
   const formErrors: LoginFormErrors = {
     username_email: "",
     password: "",
@@ -344,7 +343,6 @@ export function validateUsername(username: string): {
   error: string | null;
 } {
   let error = null;
-  console.log(username, "raaaan");
   if (validator.isLength(username, { min: 3, max: 24 })) {
     if (!validator.isAlphanumeric(username)) {
       error = "Invalid Username - Must be Alphanumeric";

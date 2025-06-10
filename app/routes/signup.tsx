@@ -18,7 +18,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   const displayName = username;
   const password = formData.get("password")?.toString() || "";
   const confirmPassword = formData.get("confirmPassword")?.toString() || "";
-  console.log("Action ran", username, email, displayName, password);
+  console.log("Action ran", username, email, displayName);
   const { user, formErrors } = await createNewUser({
     username,
     email,

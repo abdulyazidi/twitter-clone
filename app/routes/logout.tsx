@@ -25,7 +25,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         expiresAt: new Date(Date.now() - 1000),
       },
     });
-    console.log("session gone");
+    console.log("successful logout");
   } catch (error) {
     console.error("Error updating session");
   }
