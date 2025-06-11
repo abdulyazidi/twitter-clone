@@ -39,7 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Scripts />
         <Link to={"/login"}>Login</Link>
         <Link to={"/signup"}>Signup</Link>
-        <Link to={"/Logout"}>Logout</Link>
+        <Link to={"/logout"}>Logout</Link>
       </body>
     </html>
   );
