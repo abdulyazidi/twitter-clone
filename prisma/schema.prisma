@@ -2,9 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["queryCompiler", "driverAdapters"]
-  output   = "../node_modules/@prisma-app/client"
+  output          = "../node_modules/@prisma-app/client"
 }
 
 datasource db {
@@ -13,24 +13,37 @@ datasource db {
 }
 
 model User {
-  id           String  @id @default(ulid()) // Prefix in 
-  displayName  String
-  username     String  @unique
-  email        String  @unique
+  // Core User info
+  id           String       @id @default(ulid()) // Prefix in query/middleware thingy
+  username     String       @unique
+  email        String       @unique
   passwordHash String
   salt         String
-  bio          String?
-  avatarURL    String?
-
+  isPrivate    Boolean      @default(false) // is profile private
+  // User related details/actions
+  tweets       Tweet[]
+  likes        Like[]
   // Relations
-  followers Follows[] @relation(name: "followers")
-  following Follows[] @relation(name: "following")
-  sessions  Session[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  profile      UserProfile?
+  followers    Follow[]    @relation(name: "followers")
+  following    Follow[]    @relation(name: "following")
+  sessions     Session[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 }
 
-model Follows {
+model UserProfile {
+  userId      String  @id
+  user        User    @relation(references: [id], fields: [userId], onDelete: Cascade)
+  displayName String
+  bio         String?
+  avatarURL   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Follow {
   followerId  String
   followingId String
 
@@ -41,6 +54,54 @@ model Follows {
   updatedAt DateTime @updatedAt
 
   @@id([followerId, followingId])
+}
+
+model Tweet {
+  id   String     @id @default(ulid())
+  type TWEET_TYPE
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Shared
+  content String? // Nullable cuz some types dont need content (retweets, image tweets...)
+
+  // Reply fields
+  parentTweetId String?
+  parentTweet   Tweet?  @relation("Replies", fields: [parentTweetId], references: [id], onDelete: SetNull)
+  replies       Tweet[] @relation("Replies")
+
+  // Quote fields
+  quotedTweetId String?
+  quoteTweet    Tweet?  @relation("Quotes", fields: [quotedTweetId], references: [id], onDelete: SetNull)
+  quotes        Tweet[] @relation("Quotes")
+
+  likes Like[]
+
+  //Denormalized counters
+  likeCount    Int @default(0)
+  replyCount   Int @default(0)
+  quoteCount   Int @default(0)
+  retweetCount Int @default(0)
+}
+
+enum TWEET_TYPE {
+  TWEET
+  REPLY
+  QUOTE_TWEET
+  RETWEET
+}
+
+model Like {
+  userId  String
+  tweetId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tweet Tweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([userId, tweetId]) // A user can only like a tweet once
 }
 
 model Session {
