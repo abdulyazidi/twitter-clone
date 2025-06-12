@@ -39,11 +39,13 @@ model UserProfile {
   displayName String
   bio         String?
   avatarURL   String?
-
+  location String?
+  website String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+<<<<<<< HEAD
 model Mention {
   userId String
   tweetId String
@@ -55,6 +57,8 @@ model Mention {
 
   @@id([userId, tweetId])
 }
+=======
+>>>>>>> 250058f (aa)
 
 model Follow {
   followerId  String
