@@ -28,6 +28,7 @@ model User {
   followers    Follow[]    @relation(name: "followers")
   following    Follow[]    @relation(name: "following")
   sessions     Session[]
+  mentions     Mention[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 }
@@ -41,6 +42,18 @@ model UserProfile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Mention {
+  userId String
+  tweetId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tweet Tweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, tweetId])
 }
 
 model Follow {
@@ -76,6 +89,7 @@ model Tweet {
   quoteTweet    Tweet?  @relation("Quotes", fields: [quotedTweetId], references: [id], onDelete: SetNull)
   quotes        Tweet[] @relation("Quotes")
 
+  mentions Mention[]
   likes Like[]
 
   //Denormalized counters
