@@ -22,7 +22,6 @@ export async function action({ request, params }: Route.ActionArgs) {
   const { user, formErrors } = await createNewUser({
     username,
     email,
-    displayName,
     password,
     confirmPassword,
   });
@@ -52,7 +51,7 @@ export default function SignupPage({
     <div className="grid min-h-svh lg:grid-cols-1 ">
       <div className="flex flex-col gap-4 p-6 md:p-10 border-r">
         <div className="flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
+          <a href="/" className="flex items-center gap-2 font-medium">
             <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
               <GalleryVerticalEnd className="size-4" />
             </div>

@@ -82,7 +82,7 @@ export default function LogoutPage({ loaderData }: Route.ComponentProps) {
             </CardContent>
             <CardFooter>
               <Form method="POST" className="w-full">
-                <Button type="submit" variant="destructive" className="w-full">
+                <Button type="submit" variant="destructive" className="w-full ">
                   Sign Out
                 </Button>
               </Form>

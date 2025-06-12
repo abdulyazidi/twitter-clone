@@ -117,7 +117,12 @@ export async function requireAuthRedirect(
         select: {
           email: true,
           username: true,
-          avatarURL: true,
+          profile: {
+            select: {
+              avatarURL: true,
+              displayName: true,
+            },
+          },
         },
       },
     },
@@ -132,12 +137,14 @@ export async function requireAuthRedirect(
       },
     });
   }
+  const authUser = dbSession.user;
   const cookie: AuthCookie = {
     userId: dbSession.userId,
     email: dbSession.user.email,
-    username: dbSession.user.username,
     sessionId: dbSession.sessionId,
-    avatarURL: dbSession.user.avatarURL,
+    username: authUser.username,
+    avatarURL: authUser.profile?.avatarURL,
+    displayName: authUser.profile?.displayName,
   };
   authCache.set(dbSession.sessionId, {
     expiresAt: new Date(Date.now() + AUTH_COOKIE_EXPIRY),

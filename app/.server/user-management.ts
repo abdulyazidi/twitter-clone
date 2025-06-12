@@ -18,7 +18,6 @@ export const GENERAL_LOGIN_ERROR_STATEMENT = "Incorrect user details";
 export async function createNewUser({
   username,
   email,
-  displayName,
   password,
   confirmPassword,
   ipAddress,
@@ -26,7 +25,6 @@ export async function createNewUser({
 }: {
   username: string;
   email: string;
-  displayName: string;
   password: string;
   confirmPassword: string;
   userAgent?: string;
@@ -100,7 +98,6 @@ export async function createNewUser({
       },
       update: {},
       create: {
-        displayName: displayName,
         username: username,
         email: email,
         passwordHash: passwordHash,
@@ -118,7 +115,6 @@ export async function createNewUser({
         id: true,
         username: true,
         email: true,
-        displayName: true,
         sessions: {
           select: {
             sessionId: true,
@@ -224,7 +220,6 @@ export async function loginUser({
     username: true,
     passwordHash: true,
     salt: true,
-    avatarURL: true,
   };
 
   let user;
@@ -313,7 +308,6 @@ export async function loginUser({
             email: true,
             username: true,
             id: true,
-            avatarURL: true,
           },
         },
         sessionId: true,
@@ -330,7 +324,6 @@ export async function loginUser({
     sessionId: session.sessionId,
     username: session.user.username,
     userId: session.user.id,
-    avatarURL: session.user.avatarURL,
   };
   return {
     auth: auth,

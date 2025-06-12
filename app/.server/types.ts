@@ -4,6 +4,7 @@ export type AuthCookie = {
   username: string;
   sessionId: string;
   avatarURL?: string | null | undefined;
+  displayName?: string | null;
 };
 
 export type SignUpFormErrors = {

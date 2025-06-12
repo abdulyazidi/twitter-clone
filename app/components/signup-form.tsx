@@ -2,7 +2,9 @@ import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import type { SignUpFormErrors } from "~/.server/types";
+
 export function SignupForm({
   className,
   formErrors,
@@ -10,11 +12,17 @@ export function SignupForm({
 }: React.ComponentProps<"div"> & { formErrors?: SignUpFormErrors }) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Create your account</h1>
-        <p className="text-muted-foreground text-sm text-balance">
-          Enter your information below to create your account
-        </p>
+      <div className="flex flex-col items-center gap-4 text-center">
+        <Avatar className="size-20">
+          <AvatarImage src="/x-logo.jpg" alt="X Logo" />
+          <AvatarFallback>X</AvatarFallback>
+        </Avatar>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold">Create your account</h1>
+          <p className="text-muted-foreground text-sm text-balance">
+            Enter your information below to create your account
+          </p>
+        </div>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">
@@ -77,7 +85,7 @@ export function SignupForm({
             name="confirmPassword"
             aria-invalid={formErrors?.confirmPassword ? true : false}
           />
-          {formErrors?.password ? (
+          {formErrors?.confirmPassword ? (
             <span className="text-destructive text-xs -mt-2">
               {formErrors.confirmPassword}
             </span>
@@ -103,7 +111,7 @@ export function SignupForm({
       </div>
       <div className="text-center text-sm">
         Already have an account?{" "}
-        <a href="#" className="underline underline-offset-4">
+        <a href="/login" className="underline underline-offset-4">
           Sign in
         </a>
       </div>

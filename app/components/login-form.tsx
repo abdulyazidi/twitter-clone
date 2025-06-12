@@ -2,6 +2,7 @@ import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import type { LoginFormErrors } from "~/.server/types";
 
 export function LoginForm({
@@ -13,11 +14,17 @@ export function LoginForm({
 }) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Login to your account</h1>
-        <p className="text-muted-foreground text-sm text-balance">
-          Enter your username or email below to login to your account
-        </p>
+      <div className="flex flex-col items-center gap-4 text-center">
+        <Avatar className="size-20">
+          <AvatarImage src="/x-logo.jpg" alt="X Logo" />
+          <AvatarFallback>X</AvatarFallback>
+        </Avatar>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold">Login to your account</h1>
+          <p className="text-muted-foreground text-sm text-balance">
+            Enter your username or email below to login to your account
+          </p>
+        </div>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">

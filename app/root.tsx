@@ -37,9 +37,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
-        <Link to={"/login"}>Login</Link>
-        <Link to={"/signup"}>Signup</Link>
-        <Link to={"/logout"}>Logout</Link>
       </body>
     </html>
   );

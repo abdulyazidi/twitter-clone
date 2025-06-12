@@ -45,7 +45,6 @@ model UserProfile {
   updatedAt DateTime @updatedAt
 }
 
-<<<<<<< HEAD
 model Mention {
   userId String
   tweetId String
@@ -57,8 +56,6 @@ model Mention {
 
   @@id([userId, tweetId])
 }
-=======
->>>>>>> 250058f (aa)
 
 model Follow {
   followerId  String
