@@ -10,6 +10,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { Button } from "./components/ui/button";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -34,6 +35,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <div className="flex gap-6 justify-center">
+          <Button asChild>
+            <Link to="/">Root</Link>
+          </Button>
+          <Button asChild>
+            <Link to="/signup">Signup</Link>
+          </Button>
+          <Button asChild>
+            <Link to="/login">Login</Link>
+          </Button>
+          <Button asChild>
+            <Link to="/logout">Logout</Link>
+          </Button>
+          <Button asChild>
+            <Link to="/Home">Home</Link>
+          </Button>
+        </div>
         {children}
         <ScrollRestoration />
         <Scripts />
