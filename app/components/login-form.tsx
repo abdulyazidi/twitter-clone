@@ -32,8 +32,8 @@ export function LoginForm({
           <Input
             id="username_email"
             type="text"
-            defaultValue={`demo@example.com`}
-            placeholder="demo@example.com"
+            defaultValue={`example@example.com`}
+            placeholder="example@example.com"
             required
             name="username_email"
             aria-invalid={formErrors?.hasErrors}
@@ -58,7 +58,7 @@ export function LoginForm({
             type="password"
             required
             name="password"
-            defaultValue={"Demo@1234"}
+            defaultValue={"QWEOJIQWE@asadsd1"}
             aria-invalid={formErrors?.hasErrors}
           />
           {formErrors?.hasErrors && (

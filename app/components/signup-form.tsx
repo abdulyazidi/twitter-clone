@@ -32,7 +32,7 @@ export function SignupForm({
             type="text"
             placeholder="JohnDoe"
             required
-            defaultValue={"demo"}
+            defaultValue={"example"}
             name="username"
             aria-invalid={formErrors?.username ? true : false}
           />
@@ -49,7 +49,7 @@ export function SignupForm({
             type="email"
             placeholder="m@example.com"
             required
-            defaultValue={"demo@example.com"}
+            defaultValue={"example@example.com"}
             name="email"
             aria-invalid={formErrors?.email ? true : false}
           />
@@ -65,7 +65,7 @@ export function SignupForm({
             id="password"
             type="password"
             required
-            defaultValue={"Demo@1234"}
+            defaultValue={"QWEOJIQWE@asadsd1"}
             name="password"
             aria-invalid={formErrors?.password ? true : false}
           />
@@ -81,7 +81,7 @@ export function SignupForm({
             id="confirmPassword"
             type="password"
             required
-            defaultValue={"Demo@1234"}
+            defaultValue={"QWEOJIQWE@asadsd1"}
             name="confirmPassword"
             aria-invalid={formErrors?.confirmPassword ? true : false}
           />

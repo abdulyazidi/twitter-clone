@@ -93,82 +93,86 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   return (
     <div className="grid grid-cols-8 grid-flow-col mx-auto max-w-[1440px] min-h-screen">
       {/* sidebar */}
-      <div className="col-span-2 border-r bg-background flex flex-col h-screen sticky top-0">
+      <div className="col-span-2 border-r bg-background flex flex-col h-screen sticky top-0 overflow-hidden">
         {/* Twitter Logo/Brand */}
-        <div className="p-4">
-          <div className="flex items-center justify-center md:justify-start">
-            <div className="p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-              <TwitterIcon className="h-7 w-7 text-primary" />
+        <div className="flex-shrink-0 p-2 lg:p-4">
+          <div className="flex items-center justify-center lg:justify-start">
+            <div className="p-2 lg:p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+              <TwitterIcon className="h-5 w-5 lg:h-7 lg:w-7 text-primary" />
             </div>
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex flex-col gap-1 px-2  ring">
-          {sidebarNavItems.map((item) => (
-            <NavLink
-              key={item.href}
-              to={item.href}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center justify-center md:justify-start rounded-full p-3 group relative ",
-                  isActive && "font-bold"
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <div className="flex items-center gap-4 text-xl p-2 md:px-4 md:py-2 rounded-full group-hover:bg-accent self-end">
-                    <item.icon
-                      className="size-7 shrink-0 "
-                      strokeWidth={isActive ? 2.5 : 2}
-                      fill={isActive ? "currentColor" : "none"}
-                    />
-                    <span
-                      className={cn(
-                        "hidden md:block text-xl",
-                        isActive && "font-bold"
-                      )}
-                    >
-                      {item.title}
-                    </span>
-                  </div>
-                </>
-              )}
-            </NavLink>
-          ))}
+        {/* Navigation - Scrollable Section */}
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 overflow-y-auto scrollbar-hide">
+            <div className="flex flex-col gap-0.5 lg:gap-1 px-1 lg:px-2 pb-2 lg:pb-4">
+              {sidebarNavItems.map((item) => (
+                <NavLink
+                  key={item.href}
+                  to={item.href}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center justify-center lg:justify-start rounded-full py-2 lg:p-1 group relative ",
+                      isActive && "font-bold"
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <div className="flex items-center gap-4 text-xl p-2 lg:px-4 lg:py-2 rounded-full group-hover:bg-accent w-fit">
+                        <item.icon
+                          className="size-5 lg:size-7 shrink-0"
+                          strokeWidth={isActive ? 2.5 : 2}
+                          fill={isActive ? "currentColor" : "none"}
+                        />
+                        <span
+                          className={cn(
+                            "hidden lg:block text-xl",
+                            isActive && "font-bold"
+                          )}
+                        >
+                          {item.title}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
+          </div>
 
-          {/* Post Button */}
-          <div className="mt-4 px-3">
+          {/* Post Button - Always Visible */}
+          <div className="flex-shrink-0 px-2 lg:px-5 pb-2 lg:pb-4">
             <Button
-              className="w-full h-12 text-lg font-bold rounded-full bg-blue-500 hover:bg-blue-600 text-white border-0 shadow-none"
+              className="w-full h-10 lg:h-12 text-base lg:text-lg font-bold rounded-full bg-blue-500 hover:bg-blue-600 text-white border-0 shadow-none"
               size="lg"
             >
-              <span className="hidden md:block">Post</span>
-              <span className="md:hidden text-2xl">+</span>
+              <span className="hidden lg:block">Post</span>
+              <span className="lg:hidden text-xl">+</span>
             </Button>
           </div>
         </div>
 
-        {/* User Profile Section */}
-        <div className="p-3 ">
-          <div className="flex items-center gap-3 p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-            <Avatar className="size-10">
+        {/* User Profile Section - Always Visible */}
+        <div className="flex-shrink-0 p-1 lg:p-3 border-t border-border">
+          <div className="flex items-center justify-center lg:justify-start gap-3 p-2 lg:p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+            <Avatar className="size-8 lg:size-10">
               <AvatarImage src={mockUser.avatar} alt={mockUser.name} />
-              <AvatarFallback className="bg-blue-500 text-white font-semibold">
+              <AvatarFallback className="bg-blue-500 text-white font-semibold text-xs lg:text-sm">
                 {mockUser.name
                   .split(" ")
                   .map((n) => n[0])
                   .join("")}
               </AvatarFallback>
             </Avatar>
-            <div className="hidden md:block flex-1 min-w-0">
+            <div className="hidden lg:block flex-1 min-w-0">
               <p className="font-bold text-sm truncate">{mockUser.name}</p>
               <p className="text-gray-500 text-sm truncate">
                 {mockUser.username}
               </p>
             </div>
-            <MoreHorizontalIcon className="hidden md:block size-5 text-gray-500" />
+            <MoreHorizontalIcon className="hidden lg:block size-5 text-gray-500" />
           </div>
         </div>
       </div>
