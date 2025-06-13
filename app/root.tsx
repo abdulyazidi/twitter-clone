@@ -49,7 +49,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Link to="/logout">Logout</Link>
           </Button>
           <Button asChild>
-            <Link to="/Home">Home</Link>
+            <Link to="/home">Home</Link>
           </Button>
         </div>
         {children}

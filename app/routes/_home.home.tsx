@@ -1,4 +1,4 @@
-import type { Route } from "./+types/home.lmao";
+import type { Route } from "./+types/_home.home";
 
 export async function loader({ request }: Route.LoaderArgs) {
   return null;
@@ -8,5 +8,5 @@ export async function action({ request }: Route.ActionArgs) {
   return null;
 }
 export default function Page({ loaderData }: Route.ComponentProps) {
-  return <div>Hello</div>;
+  return <div>Home Page</div>;
 }
