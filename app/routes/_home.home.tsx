@@ -2,6 +2,7 @@ import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.home";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent } from "~/components/ui/card";
+import { useNavigate } from "react-router";
 
 // Mock data generator for tweets
 const generateTweets = (count: number) => {
@@ -113,6 +114,8 @@ const generateTweets = (count: number) => {
 
 // Tweet component
 const Tweet = ({ tweet }: { tweet: any }) => {
+  const navigate = useNavigate();
+
   const timeAgo = (date: Date) => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
@@ -124,9 +127,25 @@ const Tweet = ({ tweet }: { tweet: any }) => {
     return `${Math.floor(diff / (1000 * 60))}m`;
   };
 
+  const handleTweetClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on buttons
+    if ((e.target as HTMLElement).closest("button")) {
+      return;
+    }
+    navigate(`/${tweet.user.username}/${tweet.id}`);
+  };
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Handle button action here
+  };
+
   return (
-    <Card className="border-b border-border rounded-none border-x-0 hover:bg-muted/50 transition-colors">
-      <CardContent className="p-4">
+    <Card
+      className="border-b border-border rounded-none border-x-0 hover:bg-muted/30 hover:outline ring-inset bg-background transition-colors cursor-pointer py-0"
+      onClick={handleTweetClick}
+    >
+      <CardContent className="px-4 py-3">
         <div className="flex space-x-3">
           <Avatar className="size-10">
             <AvatarImage src={tweet.user.avatar} alt={tweet.user.name} />
@@ -138,7 +157,7 @@ const Tweet = ({ tweet }: { tweet: any }) => {
             </AvatarFallback>
           </Avatar>
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 space-y-2 ">
             <div className="flex items-center space-x-2">
               <h3 className="font-semibold text-foreground truncate">
                 {tweet.user.name}
@@ -152,12 +171,15 @@ const Tweet = ({ tweet }: { tweet: any }) => {
               </span>
             </div>
 
-            <p className="mt-2 text-foreground whitespace-pre-wrap break-words">
+            <p className=" text-foreground whitespace-pre-wrap break-words">
               {tweet.content}
             </p>
 
-            <div className="flex items-center justify-between mt-4 max-w-md">
-              <button className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors group">
+            <div className="flex items-center justify-between ">
+              <button
+                className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors group"
+                onClick={handleButtonClick}
+              >
                 <div className="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors">
                   <svg
                     className="size-4"
@@ -176,7 +198,10 @@ const Tweet = ({ tweet }: { tweet: any }) => {
                 <span className="text-sm">{tweet.replies}</span>
               </button>
 
-              <button className="flex items-center space-x-2 text-muted-foreground hover:text-green-500 transition-colors group">
+              <button
+                className="flex items-center space-x-2 text-muted-foreground hover:text-green-500 transition-colors group"
+                onClick={handleButtonClick}
+              >
                 <div className="p-2 rounded-full group-hover:bg-green-500/10 transition-colors">
                   <svg
                     className="size-4"
@@ -195,7 +220,10 @@ const Tweet = ({ tweet }: { tweet: any }) => {
                 <span className="text-sm">{tweet.retweets}</span>
               </button>
 
-              <button className="flex items-center space-x-2 text-muted-foreground hover:text-red-500 transition-colors group">
+              <button
+                className="flex items-center space-x-2 text-muted-foreground hover:text-red-500 transition-colors group"
+                onClick={handleButtonClick}
+              >
                 <div className="p-2 rounded-full group-hover:bg-red-500/10 transition-colors">
                   <svg
                     className="size-4"
@@ -214,7 +242,10 @@ const Tweet = ({ tweet }: { tweet: any }) => {
                 <span className="text-sm">{tweet.likes}</span>
               </button>
 
-              <button className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors group">
+              <button
+                className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors group"
+                onClick={handleButtonClick}
+              >
                 <div className="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors">
                   <svg
                     className="size-4"
@@ -254,8 +285,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const tweets = generateTweets(50);
 
   return (
-    <div className="min-h-screen bg-background ring grid grid-cols-3 grid-flow-col gap-6">
-      <div className="ring ring-inset col-span-3  md:col-span-2">
+    <div className="min-h-screen bg-background grid grid-cols-3 grid-flow-col gap-6 ">
+      <div className=" ring-inset col-span-3  md:col-span-2 border  ">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
           <div className="px-4 py-3">
@@ -264,7 +295,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </div>
 
         {/* Tweet Feed */}
-        <div className="divide-y divide-border ring">
+        <div className="divide-y divide-border ">
           {tweets.map((tweet) => (
             <Tweet key={tweet.id} tweet={tweet} />
           ))}

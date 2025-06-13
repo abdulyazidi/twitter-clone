@@ -91,9 +91,9 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   return (
-    <div className="grid grid-cols-8 grid-flow-col mx-auto max-w-[1440px] min-h-screen">
+    <div className="grid grid-cols-8 grid-flow-col mx-auto max-w-7xl min-h-screen">
       {/* sidebar */}
-      <div className="col-span-2 border-r bg-background flex flex-col h-screen sticky top-0 overflow-hidden">
+      <div className="col-span-2  border-r bg-background flex flex-col h-screen sticky top-0 overflow-hidden">
         {/* Twitter Logo/Brand */}
         <div className="flex-shrink-0 p-2 lg:p-4">
           <div className="flex items-center justify-center lg:justify-start">
@@ -104,7 +104,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </div>
 
         {/* Navigation - Scrollable Section */}
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden ">
           <div className="flex-1 overflow-y-auto scrollbar-hide">
             <div className="flex flex-col gap-0.5 lg:gap-1 px-1 lg:px-2 pb-2 lg:pb-4">
               {sidebarNavItems.map((item) => (
@@ -178,7 +178,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       </div>
 
       {/* main */}
-      <div className="col-span-6 bg-background ring">
+      <div className="col-span-6 bg-background ">
         <Outlet />
       </div>
     </div>
