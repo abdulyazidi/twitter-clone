@@ -452,7 +452,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             </div>
           </fetcher.Form>
           {loaderData.tweets.map((t: any) => (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between" key={t.id}>
               <div className="flex items-center space-x-2">
                 <Avatar>
                   <AvatarImage src={t.author.profile?.avatarURL || ""} />
