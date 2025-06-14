@@ -2,7 +2,11 @@ import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.home";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent } from "~/components/ui/card";
-import { useNavigate } from "react-router";
+import { Form, NavLink, Outlet, useNavigate } from "react-router";
+import { prisma } from "~/.server/prisma";
+import { useFetcher } from "react-router";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
 
 // Mock data generator for tweets
 const generateTweets = (count: number) => {
@@ -142,7 +146,7 @@ const Tweet = ({ tweet }: { tweet: any }) => {
 
   return (
     <Card
-      className="border-b border-border rounded-none border-x-0 hover:bg-muted/30 hover:outline ring-inset bg-background transition-colors cursor-pointer py-0"
+      className="border-b border-border rounded-none border-x-0 hover:bg-muted/30 ring-inset bg-background transition-colors cursor-pointer py-0"
       onClick={handleTweetClick}
     >
       <CardContent className="px-4 py-3">
@@ -177,10 +181,10 @@ const Tweet = ({ tweet }: { tweet: any }) => {
 
             <div className="flex items-center justify-between ">
               <button
-                className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors group"
+                className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors group"
                 onClick={handleButtonClick}
               >
-                <div className="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors">
+                <div className="p-2 rounded-full group-hover:bg-primary/10 transition-colors">
                   <svg
                     className="size-4"
                     fill="none"
@@ -199,10 +203,10 @@ const Tweet = ({ tweet }: { tweet: any }) => {
               </button>
 
               <button
-                className="flex items-center space-x-2 text-muted-foreground hover:text-green-500 transition-colors group"
+                className="flex items-center space-x-2 text-muted-foreground hover:text-green-600 transition-colors group"
                 onClick={handleButtonClick}
               >
-                <div className="p-2 rounded-full group-hover:bg-green-500/10 transition-colors">
+                <div className="p-2 rounded-full group-hover:bg-green-600/10 transition-colors">
                   <svg
                     className="size-4"
                     fill="none"
@@ -221,10 +225,10 @@ const Tweet = ({ tweet }: { tweet: any }) => {
               </button>
 
               <button
-                className="flex items-center space-x-2 text-muted-foreground hover:text-red-500 transition-colors group"
+                className="flex items-center space-x-2 text-muted-foreground hover:text-red-600 transition-colors group"
                 onClick={handleButtonClick}
               >
-                <div className="p-2 rounded-full group-hover:bg-red-500/10 transition-colors">
+                <div className="p-2 rounded-full group-hover:bg-red-600/10 transition-colors">
                   <svg
                     className="size-4"
                     fill="none"
@@ -243,10 +247,10 @@ const Tweet = ({ tweet }: { tweet: any }) => {
               </button>
 
               <button
-                className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors group"
+                className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors group"
                 onClick={handleButtonClick}
               >
-                <div className="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors">
+                <div className="p-2 rounded-full group-hover:bg-primary/10 transition-colors">
                   <svg
                     className="size-4"
                     fill="none"
@@ -272,45 +276,139 @@ const Tweet = ({ tweet }: { tweet: any }) => {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
-
-  return null;
+  const tweets = await prisma.tweet.findMany({
+    where: {
+      authorId: auth.userId,
+    },
+    include: {
+      author: {
+        include: {
+          profile: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 10,
+  });
+  return { tweets };
 }
 
 export async function action({ request }: Route.ActionArgs) {
   return null;
 }
 
+const homeNavs = [
+  {
+    href: "/home",
+    label: "For you",
+  },
+  {
+    href: "/home/following",
+    label: "Following",
+  },
+];
+
 export default function Page({ loaderData }: Route.ComponentProps) {
   // Generate 300 tweets for the feed
   const tweets = generateTweets(50);
-
+  const fetcher = useFetcher();
+  console.log(fetcher.data);
   return (
     <div className="min-h-screen bg-background grid grid-cols-3 grid-flow-col gap-6 ">
       <div className=" ring-inset col-span-3  md:col-span-2 border  ">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
-          <div className="px-4 py-3">
-            <h1 className="text-xl font-bold text-foreground">Home</h1>
+          <div className="flex">
+            {homeNavs.map((nav) => (
+              <NavLink
+                key={nav.href}
+                to={nav.href}
+                end
+                className={({ isActive }) =>
+                  `flex-1 text-sm px-4 py-4 text-center font-medium transition-colors relative hover:bg-muted/50 ${
+                    isActive
+                      ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-blue-400 after:w-1/6 after:rounded-full after:mx-auto"
+                      : "text-muted-foreground/60"
+                  }`
+                }
+              >
+                {nav.label}
+              </NavLink>
+            ))}
           </div>
         </div>
 
         {/* Tweet Feed */}
         <div className="divide-y divide-border ">
+          <Outlet />
+          <Form method="post" action="/api/test" navigate={false}>
+            <Card className="border-none">
+              <CardContent>
+                <Input name="tweet" />
+                <Button type="submit">Submit</Button>
+              </CardContent>
+            </Card>
+          </Form>
+          {loaderData.tweets.map((t) => (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Avatar>
+                  <AvatarImage src={t.author.profile?.avatarURL || ""} />
+                  <AvatarFallback>
+                    {t.author.profile?.displayName
+                      ?.split(" ")
+                      .map((n: string) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold text-foreground truncate">
+                    {t.author.profile?.displayName}
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    @{t.author.username}
+                  </p>
+                </div>
+                <div>
+                  <p>{t.content}</p>
+                </div>
+              </div>
+            </div>
+          ))}
           {tweets.map((tweet) => (
             <Tweet key={tweet.id} tweet={tweet} />
           ))}
         </div>
       </div>
       <div className="col-span-1 hidden md:block ">
-        <div className="sticky top-0 bg-blue-500 h-screen overflow-y-auto">
-          <div className="bg-blue-900 p-4">
-            <h2 className="text-white font-bold">Sidebar Content</h2>
-            <p className="text-white">
-              This content stays at the top while tweets scroll
+        <div className="sticky top-0 bg-card border rounded-lg h-screen overflow-y-auto">
+          <div className="bg-muted/50 p-4 rounded-t-lg">
+            <h2 className="text-foreground font-bold">What's happening</h2>
+            <p className="text-muted-foreground text-sm">
+              Trending topics and news updates
             </p>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+function newFunction() {
+  return (
+    <NavLink
+      to={"/home"}
+      end
+      className={({ isActive }) =>
+        `flex-1 px-4 py-4 text-center font-medium transition-colors relative hover:bg-muted/50 ${
+          isActive
+            ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-blue-400 after:rounded-full bg-red-500"
+            : "text-muted-foreground"
+        }`
+      }
+    >
+      For you
+    </NavLink>
   );
 }

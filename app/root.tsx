@@ -35,23 +35,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <div className="flex gap-6 justify-center">
-          <Button asChild>
-            <Link to="/">Root</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/signup">Signup</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/login">Login</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/logout">Logout</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/home">Home</Link>
-          </Button>
-        </div>
         {children}
         <ScrollRestoration />
         <Scripts />

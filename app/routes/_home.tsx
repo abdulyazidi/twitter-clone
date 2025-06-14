@@ -82,6 +82,8 @@ const mockUser = {
 };
 
 export async function loader({ request }: Route.LoaderArgs) {
+  console.log("layout ran");
+
   return null;
 }
 
@@ -91,13 +93,13 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   return (
-    <div className="grid grid-cols-8 grid-flow-col mx-auto max-w-7xl min-h-screen">
+    <div className="grid grid-cols-10 grid-flow-col mx-auto max-w-7xl min-h-screen ">
       {/* sidebar */}
       <div className="col-span-2  border-r bg-background flex flex-col h-screen sticky top-0 overflow-hidden">
         {/* Twitter Logo/Brand */}
         <div className="flex-shrink-0 p-2 lg:p-4">
           <div className="flex items-center justify-center lg:justify-start">
-            <div className="p-2 lg:p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+            <div className="p-2 lg:p-3 rounded-full hover:bg-accent transition-colors cursor-pointer">
               <TwitterIcon className="h-5 w-5 lg:h-7 lg:w-7 text-primary" />
             </div>
           </div>
@@ -145,7 +147,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {/* Post Button - Always Visible */}
           <div className="flex-shrink-0 px-2 lg:px-5 pb-2 lg:pb-4">
             <Button
-              className="w-full h-10 lg:h-12 text-base lg:text-lg font-bold rounded-full bg-blue-500 hover:bg-blue-600 text-white border-0 shadow-none"
+              className="w-full h-10 lg:h-12 text-base lg:text-lg font-bold rounded-full"
               size="lg"
             >
               <span className="hidden lg:block">Post</span>
@@ -156,10 +158,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
         {/* User Profile Section - Always Visible */}
         <div className="flex-shrink-0 p-1 lg:p-3 border-t border-border">
-          <div className="flex items-center justify-center lg:justify-start gap-3 p-2 lg:p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+          <div className="flex items-center justify-center lg:justify-start gap-3 p-2 lg:p-3 rounded-full hover:bg-accent transition-colors cursor-pointer">
             <Avatar className="size-8 lg:size-10">
               <AvatarImage src={mockUser.avatar} alt={mockUser.name} />
-              <AvatarFallback className="bg-blue-500 text-white font-semibold text-xs lg:text-sm">
+              <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-xs lg:text-sm">
                 {mockUser.name
                   .split(" ")
                   .map((n) => n[0])
@@ -167,18 +169,20 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </AvatarFallback>
             </Avatar>
             <div className="hidden lg:block flex-1 min-w-0">
-              <p className="font-bold text-sm truncate">{mockUser.name}</p>
-              <p className="text-gray-500 text-sm truncate">
+              <p className="font-bold text-sm truncate text-foreground">
+                {mockUser.name}
+              </p>
+              <p className="text-muted-foreground text-sm truncate">
                 {mockUser.username}
               </p>
             </div>
-            <MoreHorizontalIcon className="hidden lg:block size-5 text-gray-500" />
+            <MoreHorizontalIcon className="hidden lg:block size-5 text-muted-foreground" />
           </div>
         </div>
       </div>
 
       {/* main */}
-      <div className="col-span-6 bg-background ">
+      <div className="col-span-8 bg-background ">
         <Outlet />
       </div>
     </div>
