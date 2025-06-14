@@ -8,9 +8,10 @@ import { useFetcher } from "react-router";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { CalendarClock, Image, ImagePlay, Smile } from "lucide-react";
 import { Separator } from "~/components/ui/separator";
+import { CharacterCountIndicator } from "~/components/radial-chart";
 
 // Mock data generator for tweets
 const generateTweets = (count: number) => {
@@ -347,14 +348,12 @@ const iconActions = [
 ];
 export function TweetAreaForm() {
   const [input, setInput] = useState<string>("");
-
   return (
     <div className="">
       <Textarea
         onChange={(e) => {
           setInput(e.target.value);
         }}
-        value={input}
         className="dark:bg-transparent border-none focus-visible:ring-0 md:text-2xl break-all resize-none"
         placeholder="What's happening?"
         name="tweet"
@@ -371,7 +370,19 @@ export function TweetAreaForm() {
             <action.icon className="size-5" />
           </button>
         ))}
-        <Button type="submit" size={"lg"} className="ml-auto rounded-full">
+        <div className="flex items-center ">
+          <CharacterCountIndicator currentLength={input.length} />
+        </div>
+        <Button
+          type="submit"
+          name="_action"
+          value={"tweeting"}
+          size={"lg"}
+          className="ml-auto rounded-full"
+          onClick={() => {
+            setInput("");
+          }}
+        >
           Post
         </Button>
       </div>
@@ -383,7 +394,18 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   // Generate 300 tweets for the feed
   const tweets = generateTweets(10);
   const fetcher = useFetcher();
+
   console.log(fetcher.data);
+  const [input, setInput] = useState<string>("");
+  const formRef = useRef<HTMLFormElement>(null);
+  let isTweeting =
+    fetcher.state === "submitting" &&
+    fetcher.formData?.get("_action") === "tweeting";
+  useEffect(() => {
+    if (isTweeting) {
+      formRef.current?.reset();
+    }
+  }, [fetcher.state]);
   return (
     <div className="min-h-screen bg-background grid grid-cols-3 grid-flow-col gap-6 ">
       <div className=" ring-inset col-span-3  md:col-span-2 border  ">
@@ -412,7 +434,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         {/* Tweet Feed */}
         <div className="divide-y divide-border ">
           <Outlet />
-          <Form method="post">
+          <fetcher.Form ref={formRef} method="post">
             <div className="flex gap-4 px-4 py-2">
               <div>
                 <Avatar className="size-12 bg-muted">
@@ -422,10 +444,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </div>
               <div className="flex-1 flex flex-col gap-4">
                 <TweetAreaForm />
+                {/* <Textarea name="tweet" /> */}
               </div>
+              <Button name="_action" value={"tweeting"} type="submit">
+                Post
+              </Button>
             </div>
-          </Form>
-          {loaderData.tweets.map((t) => (
+          </fetcher.Form>
+          {loaderData.tweets.map((t: any) => (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Avatar>
