@@ -7,6 +7,10 @@ import { prisma } from "~/.server/prisma";
 import { useFetcher } from "react-router";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
+import { Textarea } from "~/components/ui/textarea";
+import { useState } from "react";
+import { CalendarClock, Image, ImagePlay, Smile } from "lucide-react";
+import { Separator } from "~/components/ui/separator";
 
 // Mock data generator for tweets
 const generateTweets = (count: number) => {
@@ -296,7 +300,20 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  return null;
+  const auth = await requireAuthRedirect(request);
+  const formData = await request.formData();
+  console.log(formData, "api test route ran");
+  const tweet = formData.get("tweet")?.toString() || "Hello world";
+
+  const create = await prisma.tweet.create({
+    data: {
+      authorId: auth.userId,
+      type: "TWEET",
+      content: tweet,
+    },
+  });
+
+  return { tweet: create };
 }
 
 const homeNavs = [
@@ -310,9 +327,61 @@ const homeNavs = [
   },
 ];
 
+const iconActions = [
+  {
+    icon: Image,
+    onClick: () => alert("Image clicked"),
+  },
+  {
+    icon: ImagePlay,
+    onClick: () => console.log("Video clicked"),
+  },
+  {
+    icon: Smile,
+    onClick: () => console.log("Emoji clicked"),
+  },
+  {
+    icon: CalendarClock,
+    onClick: () => console.log("Schedule clicked"),
+  },
+];
+export function TweetAreaForm() {
+  const [input, setInput] = useState<string>("");
+
+  return (
+    <div className="">
+      <Textarea
+        onChange={(e) => {
+          setInput(e.target.value);
+        }}
+        value={input}
+        className="dark:bg-transparent border-none focus-visible:ring-0 md:text-2xl break-all resize-none"
+        placeholder="What's happening?"
+        name="tweet"
+      />
+      <Separator />
+      <div className="flex gap-4 items-center">
+        {iconActions.map((action, index) => (
+          <button
+            key={index}
+            type="button"
+            onClick={action.onClick}
+            className="p-2 rounded-full hover:bg-muted transition-colors"
+          >
+            <action.icon className="size-5" />
+          </button>
+        ))}
+        <Button type="submit" size={"lg"} className="ml-auto rounded-full">
+          Post
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function Page({ loaderData }: Route.ComponentProps) {
   // Generate 300 tweets for the feed
-  const tweets = generateTweets(50);
+  const tweets = generateTweets(10);
   const fetcher = useFetcher();
   console.log(fetcher.data);
   return (
@@ -343,13 +412,18 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         {/* Tweet Feed */}
         <div className="divide-y divide-border ">
           <Outlet />
-          <Form method="post" action="/api/test" navigate={false}>
-            <Card className="border-none">
-              <CardContent>
-                <Input name="tweet" />
-                <Button type="submit">Submit</Button>
-              </CardContent>
-            </Card>
+          <Form method="post">
+            <div className="flex gap-4 px-4 py-2">
+              <div>
+                <Avatar className="size-12 bg-muted">
+                  <AvatarImage src="logo-dark.svg"></AvatarImage>
+                  <AvatarFallback>FA</AvatarFallback>
+                </Avatar>
+              </div>
+              <div className="flex-1 flex flex-col gap-4">
+                <TweetAreaForm />
+              </div>
+            </div>
           </Form>
           {loaderData.tweets.map((t) => (
             <div className="flex items-center justify-between">
