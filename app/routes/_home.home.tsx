@@ -80,7 +80,7 @@ const generateTweets = (count: number) => {
     "TypeScript has completely changed how I write JavaScript. Type safety is everything! 🎯",
     "Weekend project: Building a small CLI tool. Sometimes the simple things are the most fun 🛠️",
     "The feeling when your tests finally pass after hours of debugging 🎉",
-    "Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪",
+    "Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminde coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪",
     "Attending a tech conference virtually today. So many inspiring talks! 🎤",
     "CSS Grid and Flexbox together are pure magic for layouts ✨",
     "Pair programming session went great today. Two minds really are better than one! 👥",
@@ -350,7 +350,7 @@ const iconActions = [
   },
 ];
 export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
-  const maxSizeMB = 50;
+  const maxSizeMB = 500000;
   const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
   const maxFiles = 4;
   const [fileUploadStates, fileUploadActions] = useFileUpload({
@@ -360,7 +360,11 @@ export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
   });
   const [input, setInput] = useState<string>("");
   const fetcher = useFetcher();
-
+  useEffect(() => {
+    if (fetcher.data) {
+      console.log("form data", fetcher.data);
+    }
+  }, [fetcher.data]);
   const handleSubmit = () => {
     if (!input && fileUploadStates.files.length === 0) {
       return;
@@ -434,7 +438,7 @@ export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   // Generate 300 tweets for the feed
-  const tweets = generateTweets(10);
+  const tweets = generateTweets(5);
 
   return (
     <div className="min-h-screen bg-background grid grid-cols-3 grid-flow-col gap-6 ">

@@ -9,6 +9,7 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@fastify/busboy": "^3.1.1",
     "@mjackson/file-storage": "^0.7.0",
     "@mjackson/form-data-parser": "^0.9.1",
     "@mjackson/multipart-parser": "^0.10.1",
