@@ -348,8 +348,8 @@ const iconActions = [
     onClick: () => console.log("Schedule clicked"),
   },
 ];
-export function TweetAreaForm() {
-  const maxSizeMB = 50;
+export function TweetForm({ action }: { action?: string }) {
+  const maxSizeMB = 5000;
   const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
   const maxFiles = 4;
   const [fileUploadStates, fileUploadActions] = useFileUpload({
@@ -358,9 +358,33 @@ export function TweetAreaForm() {
     maxSize,
   });
   const [input, setInput] = useState<string>("");
+  const fetcher = useFetcher();
+
+  const handleSubmit = () => {
+    if (!input && fileUploadStates.files.length === 0) {
+      return;
+    }
+    const formData = new FormData();
+    formData.append("tweet", input);
+    fileUploadStates.files.forEach((file) => {
+      if (file.file instanceof File) {
+        formData.append("media", file.file);
+      }
+    });
+
+    fetcher.submit(formData, {
+      method: "post",
+      encType: "multipart/form-data",
+    });
+
+    setInput("");
+    fileUploadActions.clearFiles();
+  };
+
   return (
     <div className="">
       <Textarea
+        value={input}
         onChange={(e) => {
           setInput(e.target.value);
         }}
@@ -395,9 +419,7 @@ export function TweetAreaForm() {
             value={"tweeting"}
             size={"lg"}
             className="ml-auto rounded-full"
-            onClick={() => {
-              setInput("");
-            }}
+            onClick={handleSubmit}
           >
             Post
           </Button>
@@ -410,19 +432,7 @@ export function TweetAreaForm() {
 export default function Page({ loaderData }: Route.ComponentProps) {
   // Generate 300 tweets for the feed
   const tweets = generateTweets(10);
-  const fetcher = useFetcher();
 
-  console.log(fetcher.data);
-  const [input, setInput] = useState<string>("");
-  const formRef = useRef<HTMLFormElement>(null);
-  let isTweeting =
-    fetcher.state === "submitting" &&
-    fetcher.formData?.get("_action") === "tweeting";
-  useEffect(() => {
-    if (isTweeting) {
-      formRef.current?.reset();
-    }
-  }, [fetcher.state]);
   return (
     <div className="min-h-screen bg-background grid grid-cols-3 grid-flow-col gap-6 ">
       <div className=" ring-inset col-span-3  md:col-span-2 border  ">
@@ -451,7 +461,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         {/* Tweet Feed */}
         <div className="divide-y divide-border ">
           <Outlet />
-          <fetcher.Form ref={formRef} method="post">
+          <div>
             <div className="flex gap-4 px-4 py-2">
               <div>
                 <Avatar className="size-12 bg-muted">
@@ -460,11 +470,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 </Avatar>
               </div>
               <div className="flex-1 flex flex-col gap-4">
-                <TweetAreaForm />
+                <TweetForm />
                 {/* <Textarea name="tweet" /> */}
               </div>
             </div>
-          </fetcher.Form>
+          </div>
           {loaderData.tweets.map((t: any) => (
             <div className="flex items-center justify-between" key={t.id}>
               <div className="flex items-center space-x-2">
