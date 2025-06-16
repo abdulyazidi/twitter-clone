@@ -12,6 +12,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { CalendarClock, Image, ImagePlay, Smile } from "lucide-react";
 import { Separator } from "~/components/ui/separator";
 import { CharacterCountIndicator } from "~/components/radial-chart";
+import FileUploadComponent from "~/components/file-upload";
 
 // Mock data generator for tweets
 const generateTweets = (count: number) => {
@@ -359,6 +360,7 @@ export function TweetAreaForm() {
         name="tweet"
       />
       <Separator />
+
       <div className="flex gap-4 items-center">
         {iconActions.map((action, index) => (
           <button
@@ -370,21 +372,21 @@ export function TweetAreaForm() {
             <action.icon className="size-5" />
           </button>
         ))}
-        <div className="flex items-center ">
+        <div className="flex items-center ml-auto ">
           <CharacterCountIndicator currentLength={input.length} />
+          <Button
+            type="submit"
+            name="_action"
+            value={"tweeting"}
+            size={"lg"}
+            className="ml-auto rounded-full"
+            onClick={() => {
+              setInput("");
+            }}
+          >
+            Post
+          </Button>
         </div>
-        <Button
-          type="submit"
-          name="_action"
-          value={"tweeting"}
-          size={"lg"}
-          className="ml-auto rounded-full"
-          onClick={() => {
-            setInput("");
-          }}
-        >
-          Post
-        </Button>
       </div>
     </div>
   );
@@ -442,13 +444,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   <AvatarFallback>FA</AvatarFallback>
                 </Avatar>
               </div>
-              <div className="flex-1 flex flex-col gap-4">
+              <div className="flex-1 flex flex-col gap-4 ring">
                 <TweetAreaForm />
                 {/* <Textarea name="tweet" /> */}
               </div>
-              <Button name="_action" value={"tweeting"} type="submit">
-                Post
-              </Button>
             </div>
           </fetcher.Form>
           {loaderData.tweets.map((t: any) => (
