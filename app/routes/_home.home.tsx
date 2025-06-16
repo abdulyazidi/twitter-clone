@@ -283,6 +283,7 @@ const Tweet = ({ tweet }: { tweet: any }) => {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
+  console.log("rannnnnnnnn");
   const tweets = await prisma.tweet.findMany({
     where: {
       authorId: auth.userId,
@@ -348,8 +349,8 @@ const iconActions = [
     onClick: () => console.log("Schedule clicked"),
   },
 ];
-export function TweetForm({ action }: { action?: string }) {
-  const maxSizeMB = 5000;
+export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
+  const maxSizeMB = 50;
   const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
   const maxFiles = 4;
   const [fileUploadStates, fileUploadActions] = useFileUpload({
@@ -375,6 +376,8 @@ export function TweetForm({ action }: { action?: string }) {
     fetcher.submit(formData, {
       method: "post",
       encType: "multipart/form-data",
+      action,
+      preventScrollReset: true,
     });
 
     setInput("");
@@ -470,7 +473,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 </Avatar>
               </div>
               <div className="flex-1 flex flex-col gap-4">
-                <TweetForm />
+                <TweetForm action="/api/post-tweet" />
                 {/* <Textarea name="tweet" /> */}
               </div>
             </div>
