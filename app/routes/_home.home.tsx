@@ -13,6 +13,7 @@ import { CalendarClock, Image, ImagePlay, Smile } from "lucide-react";
 import { Separator } from "~/components/ui/separator";
 import { CharacterCountIndicator } from "~/components/radial-chart";
 import FileUploadComponent from "~/components/file-upload";
+import { useFileUpload } from "~/hooks/use-file-upload";
 
 // Mock data generator for tweets
 const generateTweets = (count: number) => {
@@ -348,6 +349,14 @@ const iconActions = [
   },
 ];
 export function TweetAreaForm() {
+  const maxSizeMB = 50;
+  const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
+  const maxFiles = 4;
+  const [fileUploadStates, fileUploadActions] = useFileUpload({
+    multiple: true,
+    maxFiles,
+    maxSize,
+  });
   const [input, setInput] = useState<string>("");
   return (
     <div className="">
@@ -361,8 +370,14 @@ export function TweetAreaForm() {
       />
       <Separator />
 
+      <FileUploadComponent
+        fileUploadActions={fileUploadActions}
+        fileUploadStates={fileUploadStates}
+        maxFiles={maxFiles.toString()}
+        maxSizeMB={maxSizeMB.toString()}
+      />
       <div className="flex gap-4 items-center">
-        {iconActions.map((action, index) => (
+        {/* {iconActions.map((action, index) => (
           <button
             key={index}
             type="button"
@@ -371,7 +386,7 @@ export function TweetAreaForm() {
           >
             <action.icon className="size-5" />
           </button>
-        ))}
+        ))} */}
         <div className="flex items-center ml-auto ">
           <CharacterCountIndicator currentLength={input.length} />
           <Button
@@ -444,7 +459,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   <AvatarFallback>FA</AvatarFallback>
                 </Avatar>
               </div>
-              <div className="flex-1 flex flex-col gap-4 ring">
+              <div className="flex-1 flex flex-col gap-4">
                 <TweetAreaForm />
                 {/* <Textarea name="tweet" /> */}
               </div>

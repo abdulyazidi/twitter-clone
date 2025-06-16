@@ -14,7 +14,12 @@ import {
   XIcon,
 } from "lucide-react";
 
-import { formatBytes, useFileUpload } from "~/hooks/use-file-upload";
+import {
+  formatBytes,
+  useFileUpload,
+  type FileUploadActions,
+  type FileUploadState,
+} from "~/hooks/use-file-upload";
 import { Button } from "~/components/ui/button";
 
 // Create some dummy initial files
@@ -128,30 +133,31 @@ const getFilePreview = (file: {
   );
 };
 
-export default function FileUploadComponent() {
-  const maxSizeMB = 50;
-  const maxSize = maxSizeMB * 1024 * 1024; // 5MB default
-  const maxFiles = 4;
-
-  const [
-    { files, isDragging, errors },
-    {
-      handleDragEnter,
-      handleDragLeave,
-      handleDragOver,
-      handleDrop,
-      openFileDialog,
-      removeFile,
-      clearFiles,
-      getInputProps,
-    },
-  ] = useFileUpload({
-    multiple: true,
-    maxFiles,
-    maxSize,
-    initialFiles,
-  });
-
+export default function FileUploadComponent({
+  fileUploadStates,
+  fileUploadActions,
+  maxFiles = "4",
+  maxSizeMB = "50",
+}: {
+  fileUploadStates: FileUploadState;
+  fileUploadActions: FileUploadActions;
+  maxFiles?: string;
+  maxSizeMB?: string;
+}) {
+  const { files, errors, isDragging } = fileUploadStates;
+  const {
+    addFiles,
+    clearErrors,
+    clearFiles,
+    getInputProps,
+    handleDragEnter,
+    handleDragLeave,
+    handleDragOver,
+    handleDrop,
+    handleFileChange,
+    openFileDialog,
+    removeFile,
+  } = fileUploadActions;
   return (
     <div className="flex flex-col gap-2">
       {/* Drop area */}
@@ -249,20 +255,6 @@ export default function FileUploadComponent() {
           <span>{errors[0]}</span>
         </div>
       )}
-
-      <p
-        aria-live="polite"
-        role="region"
-        className="text-muted-foreground mt-2 text-center text-xs"
-      >
-        Mixed content w/ card ∙{" "}
-        <a
-          href="https://github.com/origin-space/originui/tree/main/docs/use-file-upload.md"
-          className="hover:text-foreground underline"
-        >
-          API
-        </a>
-      </p>
     </div>
   );
 }
