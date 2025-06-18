@@ -382,6 +382,7 @@ export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
       encType: "multipart/form-data",
       action,
       preventScrollReset: true,
+      flushSync: true,
     });
 
     setInput("");
