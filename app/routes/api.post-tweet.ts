@@ -1,19 +1,67 @@
 import type { Route } from "./+types/api.post-tweet";
-import { requireAuthRedirect } from "~/.server/auth";
 
-const MAX_FILE_SIZE_MB = 1024 * 1024 * 50; // 50MB
+import { requireAuthRedirect } from "~/.server/auth";
+import { FileUpload, parseFormData } from "@mjackson/form-data-parser";
+import { BUCKET, r2Client } from "~/.server/r2";
+import { randomUUID } from "node:crypto";
+import { Upload } from "@aws-sdk/lib-storage";
+const MAX_FILE_SIZE = 1024 * 1024 * 1024 * 5; // 5GB
 
 export async function action({ request }: Route.ActionArgs) {
   const auth = await requireAuthRedirect(request);
   console.log("/api/post-tweet action ran");
 
-  return Response.json("", { status: 200 });
+  const uploadHandler = async (file: FileUpload) => {
+    console.log(`Starting upload of ${file.name} to S3...`);
+    if (file.fieldName !== "media") return;
+    try {
+      const key = randomUUID();
+      const streamUpload = new Upload({
+        client: r2Client,
+        params: {
+          Bucket: BUCKET,
+          Key: key,
+          Body: file.stream(),
+          ContentType: file.type,
+        },
+      });
+      const result = await streamUpload.done();
+      console.log(`Successfully uploaded ${file.name} to ${result.Location}`);
+      return result.Location;
+    } catch (error) {
+      console.error("Error uploading to S3", error);
+      return null;
+    }
+  };
+
+  const formData = await parseFormData(
+    request,
+    { maxFiles: 1, maxFileSize: MAX_FILE_SIZE },
+    uploadHandler
+  );
+
+  console.log({ formData });
+
+  return Response.json("huh", { status: 200 });
 }
 
-const BYTES_TO_MB = 1024 * 1024; // 1,048,576
+// const BYTES_TO_MB = 1024 * 1024;
 
-setInterval(() => {
-  console.log(
-    `  rss: ${(process.memoryUsage().rss / BYTES_TO_MB).toFixed(2)} MB`
-  );
-}, 500);
+// setInterval(() => {
+//   const memory = process.memoryUsage();
+
+//   // Convert each property to MB and format
+//   const rssMB = (memory.rss / BYTES_TO_MB).toFixed(2);
+//   const heapTotalMB = (memory.heapTotal / BYTES_TO_MB).toFixed(2);
+//   const heapUsedMB = (memory.heapUsed / BYTES_TO_MB).toFixed(2);
+//   const externalMB = (memory.external / BYTES_TO_MB).toFixed(2);
+//   const arrayBuffersMB = (memory.arrayBuffers / BYTES_TO_MB).toFixed(2);
+
+//   console.log("--- Memory Usage (MB) ---");
+//   console.log(`  RSS (Resident Set Size): ${rssMB} MB`);
+//   console.log(`  Heap Total: ${heapTotalMB} MB`);
+//   console.log(`  Heap Used: ${heapUsedMB} MB`);
+//   console.log(`  External: ${externalMB} MB`);
+//   console.log(`  Array Buffers: ${arrayBuffersMB} MB`);
+//   console.log("-------------------------");
+// }, 1000);
