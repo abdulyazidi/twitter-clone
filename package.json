@@ -9,10 +9,8 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@aws-sdk/lib-storage": "^3.832.0",
     "@fastify/busboy": "^3.1.1",
-    "@mjackson/file-storage": "^0.7.0",
-    "@mjackson/form-data-parser": "^0.9.1",
-    "@mjackson/multipart-parser": "^0.10.1",
     "@prisma/adapter-pg": "^6.9.0",
     "@prisma/client": "^6.9.0",
     "@radix-ui/react-avatar": "^1.1.10",
