@@ -14,6 +14,8 @@ import { Separator } from "~/components/ui/separator";
 import { CharacterCountIndicator } from "~/components/radial-chart";
 import FileUploadComponent from "~/components/file-upload";
 import { useFileUpload } from "~/hooks/use-file-upload";
+import { cn } from "~/lib/utils";
+import { Progress } from "~/components/ui/progress";
 
 // Mock data generator for tweets
 const generateTweets = (count: number) => {
@@ -350,21 +352,56 @@ const iconActions = [
   },
 ];
 export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
-  const maxSizeMB = 500000;
+  const maxSizeMB = 50;
   const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
-  const maxFiles = 4;
+  const maxFiles = 1;
+
   const [fileUploadStates, fileUploadActions] = useFileUpload({
-    multiple: true,
+    multiple: false,
     maxFiles,
     maxSize,
   });
+
   const [input, setInput] = useState<string>("");
+  const [isPosting, setIsPosting] = useState<boolean>(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearProgressInterval = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
   const fetcher = useFetcher();
   useEffect(() => {
-    if (fetcher.data) {
-      console.log("form data", fetcher.data);
+    if (fetcher.state === "submitting") {
+      setIsPosting(true);
+      setProg(0);
+
+      intervalRef.current = setInterval(() => {
+        setProg((prev) => {
+          if (prev < 70) return prev + 2;
+          if (prev < 85) return prev + 1;
+          if (prev < 90) return prev + 0.5;
+          return prev;
+        });
+      }, 100);
     }
-  }, [fetcher.data]);
+    if (fetcher.state === "idle" && isPosting) {
+      setProg(100);
+      clearProgressInterval();
+
+      setTimeout(() => {
+        setInput("");
+        fileUploadActions.clearFiles();
+        setIsPosting(false);
+        setProg(0);
+      }, 500);
+    }
+
+    return () => clearProgressInterval();
+  }, [fetcher.state]);
   const handleSubmit = () => {
     if (!input && fileUploadStates.files.length === 0) {
       return;
@@ -382,58 +419,61 @@ export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
       encType: "multipart/form-data",
       action,
       preventScrollReset: true,
-      flushSync: true,
     });
 
-    setInput("");
-    fileUploadActions.clearFiles();
+    // moved clearing inputs to the useEffect to get a better is posting UX
   };
-
+  const [prog, setProg] = useState(0);
+  let intervalId: NodeJS.Timeout | null = null;
   return (
-    <div className="">
-      <Textarea
-        value={input}
-        onChange={(e) => {
-          setInput(e.target.value);
-        }}
-        className="dark:bg-transparent border-none focus-visible:ring-0 md:text-2xl break-all resize-none"
-        placeholder="What's happening?"
-        name="tweet"
-      />
-      <Separator />
-
-      <FileUploadComponent
-        fileUploadActions={fileUploadActions}
-        fileUploadStates={fileUploadStates}
-        maxFiles={maxFiles.toString()}
-        maxSizeMB={maxSizeMB.toString()}
-      />
-      <div className="flex gap-4 items-center">
-        {/* {iconActions.map((action, index) => (
-          <button
-            key={index}
-            type="button"
-            onClick={action.onClick}
-            className="p-2 rounded-full hover:bg-muted transition-colors"
-          >
-            <action.icon className="size-5" />
-          </button>
-        ))} */}
-        <div className="flex items-center ml-auto ">
-          <CharacterCountIndicator currentLength={input.length} />
-          <Button
-            type="submit"
-            name="_action"
-            value={"tweeting"}
-            size={"lg"}
-            className="ml-auto rounded-full"
-            onClick={handleSubmit}
-          >
-            Post
-          </Button>
+    <>
+      {isPosting && <Progress value={prog} className="h-1" />}
+      <div
+        className={cn("", isPosting ? "pointer-events-none opacity-50" : "")}
+      >
+        <Textarea
+          value={input}
+          onChange={(e) => {
+            setInput(e.target.value);
+          }}
+          className="dark:bg-transparent border-none focus-visible:ring-0 md:text-2xl break-all resize-none"
+          placeholder="What's happening?"
+          name="tweet"
+        />
+        <Separator />
+        <FileUploadComponent
+          fileUploadActions={fileUploadActions}
+          fileUploadStates={fileUploadStates}
+          maxFiles={maxFiles.toString()}
+          maxSizeMB={maxSizeMB.toString()}
+        />
+        <div className="flex gap-4 items-center">
+          {/* {iconActions.map((action, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={action.onClick}
+              className="p-2 rounded-full hover:bg-muted transition-colors"
+            >
+              <action.icon className="size-5" />
+            </button>
+          ))} */}
+          <div className="flex items-center ml-auto ">
+            <CharacterCountIndicator currentLength={input.length} />
+            <Button
+              type="submit"
+              name="_action"
+              value={"tweeting"}
+              size={"lg"}
+              className="ml-auto rounded-full"
+              onClick={handleSubmit}
+            >
+              Post
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

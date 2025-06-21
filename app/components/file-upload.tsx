@@ -136,7 +136,7 @@ const getFilePreview = (file: {
 export default function FileUploadComponent({
   fileUploadStates,
   fileUploadActions,
-  maxFiles = "4",
+  maxFiles = "1",
   maxSizeMB = "50",
 }: {
   fileUploadStates: FileUploadState;
@@ -240,7 +240,7 @@ export default function FileUploadComponent({
             </p>
             <Button variant="outline" className="mt-4" onClick={openFileDialog}>
               <UploadIcon className="-ms-1 opacity-60" aria-hidden="true" />
-              Select images
+              Select Media
             </Button>
           </div>
         )}

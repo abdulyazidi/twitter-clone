@@ -26,8 +26,11 @@ export async function action({ request }: Route.ActionArgs) {
         },
       });
       const result = await streamUpload.done();
-      console.log(`Successfully uploaded ${file.name} to ${result.Location}`);
-      return result.Location;
+      console.log(result);
+      console.log(
+        `Successfully uploaded ${file.name} to https://cdn.eloboost.cc/${key}`
+      );
+      return `https://cdn.eloboost.cc/${key}`;
     } catch (error) {
       console.error("Error uploading to S3", error);
       return null;

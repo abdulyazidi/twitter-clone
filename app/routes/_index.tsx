@@ -4,9 +4,14 @@ import { SignupForm } from "~/components/signup-form";
 import { Form, redirect } from "react-router";
 import { createNewUser } from "~/.server/user-management";
 import { authCookie } from "~/.server/cookies";
+import { requireAuthRedirect } from "~/.server/auth";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   // Add your loader logic here
+  const auth = await requireAuthRedirect(request);
+  if (auth) {
+    return redirect("/home");
+  }
   return null;
 }
 
