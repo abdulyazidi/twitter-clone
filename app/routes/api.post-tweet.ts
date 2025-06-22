@@ -10,7 +10,7 @@ import {
 import { BUCKET, r2Client } from "~/.server/r2";
 import { randomUUID } from "node:crypto";
 import { Upload } from "@aws-sdk/lib-storage";
-const MAX_FILE_SIZE = 1024 * 1024 * 1024 * 0.05; // 5GB
+const MAX_FILE_SIZE = 1024 * 1024 * 50;
 
 export async function action({ request }: Route.ActionArgs) {
   const auth = await requireAuthRedirect(request);
@@ -31,13 +31,14 @@ export async function action({ request }: Route.ActionArgs) {
         },
       });
       const result = await streamUpload.done();
-      console.log(result);
+      console.log(result, "result");
       console.log(
         `Successfully uploaded ${file.name} to https://cdn.eloboost.cc/${key}`
       );
       return `https://cdn.eloboost.cc/${key}`;
     } catch (error) {
       console.error("Error uploading to S3", error);
+
       return null;
     }
   };
@@ -50,7 +51,13 @@ export async function action({ request }: Route.ActionArgs) {
       uploadHandler
     );
   } catch (error) {
-    request.body?.getReader().cancel();
+    const reader = request.body?.getReader();
+    if (reader) {
+      while (true) {
+        const { done } = await reader.read();
+        if (done) break;
+      }
+    }
     if (error instanceof MaxFilesExceededError) {
       console.error(`Request may not contain more than 1 file`);
       return Response.json({ error: "Too many files" }, { status: 400 });
@@ -68,7 +75,7 @@ export async function action({ request }: Route.ActionArgs) {
   return Response.json("huh", { status: 200 });
 }
 
-// const BYTES_TO_MB = 1024 * 1024;
+const BYTES_TO_MB = 1024 * 1024;
 
 // setInterval(() => {
 //   const memory = process.memoryUsage();
