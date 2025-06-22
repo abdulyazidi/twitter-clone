@@ -352,7 +352,7 @@ const iconActions = [
   },
 ];
 export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
-  const maxSizeMB = 50;
+  const maxSizeMB = 500000;
   const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
   const maxFiles = 1;
 

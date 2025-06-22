@@ -1,11 +1,16 @@
 import type { Route } from "./+types/api.post-tweet";
 
 import { requireAuthRedirect } from "~/.server/auth";
-import { FileUpload, parseFormData } from "@mjackson/form-data-parser";
+import {
+  FileUpload,
+  MaxFilesExceededError,
+  MaxFileSizeExceededError,
+  parseFormData,
+} from "@mjackson/form-data-parser";
 import { BUCKET, r2Client } from "~/.server/r2";
 import { randomUUID } from "node:crypto";
 import { Upload } from "@aws-sdk/lib-storage";
-const MAX_FILE_SIZE = 1024 * 1024 * 1024 * 5; // 5GB
+const MAX_FILE_SIZE = 1024 * 1024 * 1024 * 0.05; // 5GB
 
 export async function action({ request }: Route.ActionArgs) {
   const auth = await requireAuthRedirect(request);
@@ -36,12 +41,27 @@ export async function action({ request }: Route.ActionArgs) {
       return null;
     }
   };
+  let formData;
 
-  const formData = await parseFormData(
-    request,
-    { maxFiles: 1, maxFileSize: MAX_FILE_SIZE },
-    uploadHandler
-  );
+  try {
+    formData = await parseFormData(
+      request,
+      { maxFiles: 1, maxFileSize: MAX_FILE_SIZE },
+      uploadHandler
+    );
+  } catch (error) {
+    request.body?.getReader().cancel();
+    if (error instanceof MaxFilesExceededError) {
+      console.error(`Request may not contain more than 1 file`);
+      return Response.json({ error: "Too many files" }, { status: 400 });
+    } else if (error instanceof MaxFileSizeExceededError) {
+      console.error(`Files may not be larger than 5GB`);
+      return Response.json({ error: "File too large" }, { status: 413 });
+    } else {
+      console.error(`An unknown error occurred:`, error);
+      return Response.json({ error: "Upload failed" }, { status: 500 });
+    }
+  }
 
   console.log({ formData });
 
