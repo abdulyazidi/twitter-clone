@@ -9,7 +9,19 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { CalendarClock, Image, ImagePlay, Smile } from "lucide-react";
+import {
+  Bookmark,
+  CalendarClock,
+  ChartNoAxesColumn,
+  Dot,
+  Heart,
+  Image,
+  ImagePlay,
+  MessageCircleIcon,
+  Repeat2,
+  Share,
+  Smile,
+} from "lucide-react";
 import { Separator } from "~/components/ui/separator";
 import { CharacterCountIndicator } from "~/components/radial-chart";
 import FileUploadComponent from "~/components/file-upload";
@@ -123,164 +135,6 @@ const generateTweets = (count: number) => {
   }
 
   return tweets;
-};
-
-// Tweet component
-const Tweet = ({ tweet }: { tweet: any }) => {
-  const navigate = useNavigate();
-
-  const timeAgo = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return `${days}d`;
-    if (hours > 0) return `${hours}h`;
-    return `${Math.floor(diff / (1000 * 60))}m`;
-  };
-
-  const handleTweetClick = (e: React.MouseEvent) => {
-    // Don't navigate if clicking on buttons
-    if ((e.target as HTMLElement).closest("button")) {
-      return;
-    }
-    navigate(`/${tweet.user.username}/${tweet.id}`);
-  };
-
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Handle button action here
-  };
-
-  return (
-    <Card
-      className="border-b border-border rounded-none border-x-0 hover:bg-muted/30 ring-inset bg-background transition-colors cursor-pointer py-0"
-      onClick={handleTweetClick}
-    >
-      <CardContent className="px-4 py-3">
-        <div className="flex space-x-3">
-          <Avatar className="size-10">
-            <AvatarImage src={tweet.user.avatar} alt={tweet.user.name} />
-            <AvatarFallback>
-              {tweet.user.name
-                .split(" ")
-                .map((n: string) => n[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
-
-          <div className="flex-1 min-w-0 space-y-2 ">
-            <div className="flex items-center space-x-2">
-              <h3 className="font-semibold text-foreground truncate">
-                {tweet.user.name}
-              </h3>
-              <span className="text-muted-foreground text-sm">
-                @{tweet.user.username}
-              </span>
-              <span className="text-muted-foreground text-sm">·</span>
-              <span className="text-muted-foreground text-sm">
-                {timeAgo(tweet.timestamp)}
-              </span>
-            </div>
-
-            <p className=" text-foreground whitespace-pre-wrap break-words">
-              {tweet.content}
-            </p>
-
-            <div className="flex items-center justify-between ">
-              <button
-                className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors group"
-                onClick={handleButtonClick}
-              >
-                <div className="p-2 rounded-full group-hover:bg-primary/10 transition-colors">
-                  <svg
-                    className="size-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                    />
-                  </svg>
-                </div>
-                <span className="text-sm">{tweet.replies}</span>
-              </button>
-
-              <button
-                className="flex items-center space-x-2 text-muted-foreground hover:text-green-600 transition-colors group"
-                onClick={handleButtonClick}
-              >
-                <div className="p-2 rounded-full group-hover:bg-green-600/10 transition-colors">
-                  <svg
-                    className="size-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                </div>
-                <span className="text-sm">{tweet.retweets}</span>
-              </button>
-
-              <button
-                className="flex items-center space-x-2 text-muted-foreground hover:text-red-600 transition-colors group"
-                onClick={handleButtonClick}
-              >
-                <div className="p-2 rounded-full group-hover:bg-red-600/10 transition-colors">
-                  <svg
-                    className="size-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                </div>
-                <span className="text-sm">{tweet.likes}</span>
-              </button>
-
-              <button
-                className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors group"
-                onClick={handleButtonClick}
-              >
-                <div className="p-2 rounded-full group-hover:bg-primary/10 transition-colors">
-                  <svg
-                    className="size-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-                    />
-                  </svg>
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
 };
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -582,5 +436,50 @@ function newFunction() {
     >
       For you
     </NavLink>
+  );
+}
+
+export function Tweet() {
+  let date = new Date();
+  return (
+    <div className="flex gap-2 py-2 px-4">
+      {/* Profile photo  */}
+      <div className="">
+        <Avatar className="bg-muted size-10">
+          <AvatarImage src="/favicon.ico" />
+          <AvatarFallback>AA</AvatarFallback>
+        </Avatar>
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col gap-1 w-full">
+        <div className="flex gap-1 text-sm text-zinc-500">
+          <div className="font-semibold text-foreground">Abdul</div>
+          <div className="text-zinc-500">@Abdulyazidi</div>
+          <span>·</span>
+          {date.toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+          })}
+        </div>
+        <div className="text-sm whitespace-pre-wrap">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus
+          repellendus ipsa officiis sit pariatur quaerat repudiandae ad. Totam
+          omnis voluptatum, voluptatem, aliquid est deserunt consectetur nemo
+          facilis veniam fugiat vel!
+        </div>
+        {/* Buttons and icons */}
+        <div className="flex justify-between">
+          <MessageCircleIcon />
+          <Repeat2 />
+          <Heart />
+          <ChartNoAxesColumn />
+          <div className="flex gap-2">
+            <Bookmark />
+            <Share />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
