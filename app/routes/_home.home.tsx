@@ -290,11 +290,10 @@ export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
           onChange={(e) => {
             setInput(e.target.value);
           }}
-          className="dark:bg-transparent border-none focus-visible:ring-0 md:text-2xl break-all resize-none"
+          className="dark:bg-transparent border-none focus-visible:ring-0 md:text-2xl break-all resize-none placeholder:text-zinc-500/90"
           placeholder="What's happening?"
           name="tweet"
         />
-        <Separator />
         <FileUploadComponent
           fileUploadActions={fileUploadActions}
           fileUploadStates={fileUploadStates}
@@ -439,8 +438,19 @@ function newFunction() {
   );
 }
 
+const iconColors: {
+  blue: string;
+  green: string;
+  pink: string;
+} = {
+  blue: "hover:text-blue-400 hover:!bg-blue-400/10",
+  green: "hover:text-green-400/80 hover:!bg-green-400/10",
+  pink: "hover:text-pink-500 hover:!bg-pink-500/10",
+};
+
 export function Tweet() {
   let date = new Date();
+
   return (
     <div className="flex gap-2 py-2 px-4">
       {/* Profile photo  */}
@@ -469,14 +479,26 @@ export function Tweet() {
           facilis veniam fugiat vel!
         </div>
         {/* Buttons and icons */}
-        <div className="flex justify-between">
-          <MessageCircleIcon />
-          <Repeat2 />
-          <Heart />
-          <ChartNoAxesColumn />
-          <div className="flex gap-2">
-            <Bookmark />
-            <Share />
+        <div className="flex justify-between text-zinc-500">
+          <Button variant={"ghost"} className={cn(iconColors.blue)}>
+            <MessageCircleIcon />
+          </Button>
+          <Button variant={"ghost"} className={cn(iconColors.green)}>
+            <Repeat2 className="size-5 " />
+          </Button>
+          <Button variant={"ghost"} className={cn(iconColors.pink)}>
+            <Heart />
+          </Button>
+          <Button variant={"ghost"} className={cn(iconColors.blue)}>
+            <ChartNoAxesColumn />
+          </Button>
+          <div className="flex ">
+            <Button variant={"ghost"} className={cn(iconColors.blue)}>
+              <Bookmark />
+            </Button>
+            <Button variant={"ghost"} className={cn(iconColors.blue)}>
+              <Share />
+            </Button>
           </div>
         </div>
       </div>
