@@ -3,11 +3,20 @@ import type { Route } from "./+types/_home.home._index";
 import { prisma, getUserNewsfeed } from "~/.server/prisma";
 import { Tweet } from "./_home.home";
 import type { Tweet as TweetType, NewsfeedItem } from "~/lib/types";
+import type { ShouldRevalidateFunctionArgs } from "react-router";
+
+export function shouldRevalidate({ formAction }: ShouldRevalidateFunctionArgs) {
+  const neva = ["/api/like", "/api/remove-like"];
+  if (neva.includes(formAction || "")) {
+    return false;
+  }
+  return true;
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
+  console.log("ran bro");
   const newsfeed = await prisma.$queryRawTyped(getUserNewsfeed(auth.userId));
-  console.table(newsfeed);
   return { newsfeed };
 }
 

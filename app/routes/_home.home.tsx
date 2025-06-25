@@ -2,7 +2,13 @@ import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.home";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent } from "~/components/ui/card";
-import { Form, NavLink, Outlet, useNavigate } from "react-router";
+import {
+  Form,
+  NavLink,
+  Outlet,
+  useNavigate,
+  type ShouldRevalidateFunctionArgs,
+} from "react-router";
 import { prisma } from "~/.server/prisma";
 import { useFetcher } from "react-router";
 import { Input } from "~/components/ui/input";
@@ -29,134 +35,10 @@ import { useFileUpload } from "~/hooks/use-file-upload";
 import { cn } from "~/lib/utils";
 import { Progress } from "~/components/ui/progress";
 
-// Mock data generator for tweets
-const generateTweets = (count: number) => {
-  const users = [
-    {
-      name: "John Doe",
-      username: "johndoe",
-      avatar:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
-    },
-    {
-      name: "Jane Smith",
-      username: "janesmith",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b332c2bb?w=40&h=40&fit=crop&crop=face",
-    },
-    {
-      name: "Mike Johnson",
-      username: "mikej",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-    },
-    {
-      name: "Sarah Wilson",
-      username: "sarahw",
-      avatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
-    },
-    {
-      name: "David Brown",
-      username: "davidb",
-      avatar:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face",
-    },
-    {
-      name: "Emily Davis",
-      username: "emilyd",
-      avatar:
-        "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=40&h=40&fit=crop&crop=face",
-    },
-    {
-      name: "Alex Turner",
-      username: "alexturner",
-      avatar:
-        "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=40&h=40&fit=crop&crop=face",
-    },
-    {
-      name: "Lisa Anderson",
-      username: "lisaa",
-      avatar:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face",
-    },
-  ];
-
-  const tweetTemplates = [
-    "Just shipped a new feature! 🚀 Excited to see how users respond to the improvements.",
-    "Beautiful sunset today 🌅 Nature never fails to amaze me with its colors.",
-    "Working on some exciting projects. Can't wait to share more details soon! 💻",
-    "Coffee thoughts: Why is the best code always written at 2 AM? ☕",
-    "Learning React has been an incredible journey. The community is so supportive! 💙",
-    "Hot take: Documentation is just as important as the code itself 📝",
-    "Debugging is like being a detective in a crime movie where you're also the murderer 🔍",
-    "Just finished reading an amazing book on software architecture. Highly recommend! 📚",
-    "TypeScript has completely changed how I write JavaScript. Type safety is everything! 🎯",
-    "Weekend project: Building a small CLI tool. Sometimes the simple things are the most fun 🛠️",
-    "The feeling when your tests finally pass after hours of debugging 🎉",
-    "Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪Reminde coding! 💪Reminder: Take breaks, stretch, and stay hydrated while coding! 💪",
-    "Attending a tech conference virtually today. So many inspiring talks! 🎤",
-    "CSS Grid and Flexbox together are pure magic for layouts ✨",
-    "Pair programming session went great today. Two minds really are better than one! 👥",
-    "Open source contribution feels so rewarding. Love giving back to the community 🤝",
-    "Just discovered a new JavaScript library that's going to save me hours of work! 🎁",
-    "Architecture decisions from 6 months ago are either genius or terrible. No in-between 🤔",
-    "That moment when you realize you've been overthinking a simple problem 💡",
-    "Deployment successful! Time to monitor and hope nothing breaks 🤞",
-  ];
-
-  const tweets = [];
-
-  for (let i = 0; i < count; i++) {
-    const user = users[Math.floor(Math.random() * users.length)];
-    const content =
-      tweetTemplates[Math.floor(Math.random() * tweetTemplates.length)];
-    const likes = Math.floor(Math.random() * 1000);
-    const retweets = Math.floor(Math.random() * 100);
-    const replies = Math.floor(Math.random() * 50);
-
-    // Generate random timestamp within last 30 days
-    const now = new Date();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const randomTime = new Date(
-      thirtyDaysAgo.getTime() +
-        Math.random() * (now.getTime() - thirtyDaysAgo.getTime())
-    );
-
-    tweets.push({
-      id: i + 1,
-      user,
-      content,
-      timestamp: randomTime,
-      likes,
-      retweets,
-      replies,
-    });
-  }
-
-  return tweets;
-};
-
 export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
   console.log("rannnnnnnnn");
-  const tweets = await prisma.tweet.findMany({
-    where: {
-      authorId: auth.userId,
-    },
-    include: {
-      author: {
-        include: {
-          profile: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 10,
-  });
-  return { tweets };
+  return null;
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -206,7 +88,7 @@ const iconActions = [
   },
 ];
 export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
-  const maxSizeMB = 500000;
+  const maxSizeMB = 50;
   const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
   const maxFiles = 1;
 
@@ -332,7 +214,6 @@ export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   // Generate 300 tweets for the feed
-  const tweets = generateTweets(5);
 
   return (
     <div className="min-h-screen bg-background grid grid-cols-3 grid-flow-col gap-6 ">
@@ -426,6 +307,7 @@ import type { TweetProps } from "~/lib/types";
 
 export function Tweet({ tweet }: TweetProps) {
   const {
+    id,
     displayName,
     userId,
     username,
@@ -438,7 +320,11 @@ export function Tweet({ tweet }: TweetProps) {
     quoteCount,
     hasLiked,
   } = tweet;
+  const fetcher = useFetcher();
 
+  const [liked, setLiked] = useState<typeof hasLiked>(hasLiked);
+  const [localLikeCount, setLocalLikeCount] =
+    useState<typeof likeCount>(likeCount);
   return (
     <div className="flex gap-2 py-2 px-4">
       {/* Profile photo  */}
@@ -448,7 +334,6 @@ export function Tweet({ tweet }: TweetProps) {
           <AvatarFallback>{username.slice(0, 2) || "X"}</AvatarFallback>
         </Avatar>
       </div>
-
       {/* Content */}
       <div className="flex flex-col gap-1 w-full">
         <div className="flex gap-1 text-sm text-zinc-500">
@@ -482,13 +367,29 @@ export function Tweet({ tweet }: TweetProps) {
           <Button
             variant={"ghost"}
             className={cn(
-              hasLiked ? "text-pink-500" : "",
+              liked ? "text-pink-500" : "",
               iconColors.pink,
               "flex items-center gap-1"
             )}
+            onClick={(e) => {
+              let formData = new FormData();
+              formData.set("tweetId", id);
+              fetcher.submit(formData, {
+                method: "POST",
+                action: liked ? "/api/unlike" : "/api/like",
+                preventScrollReset: true,
+              });
+              setLiked(!liked);
+              setLocalLikeCount((prev) => {
+                let count = liked ? Math.max(0, prev - 1) : prev + 1;
+                return count;
+              });
+            }}
           >
-            <Heart className={cn("size-4", hasLiked ? "fill-current" : "")} />
-            {likeCount > 0 && <span className="text-xs">{likeCount}</span>}
+            <Heart className={cn("size-4", liked ? "fill-current" : "")} />
+            {localLikeCount > 0 && (
+              <span className="text-xs">{localLikeCount}</span>
+            )}
           </Button>
           <Button variant={"ghost"} className={cn(iconColors.blue)}>
             <ChartNoAxesColumn className="size-4" />
@@ -505,4 +406,12 @@ export function Tweet({ tweet }: TweetProps) {
       </div>
     </div>
   );
+}
+
+export function shouldRevalidate({ formAction }: ShouldRevalidateFunctionArgs) {
+  const neva = ["/api/like", "/api/remove-like"];
+  if (neva.includes(formAction || "")) {
+    return false;
+  }
+  return true;
 }
