@@ -8,6 +8,6 @@ const prisma = new PrismaClient({ adapter });
 const usersWithPostCounts = await prisma.$queryRawTyped(
   getUserNewsfeed("01JYGTZKF7RZYCJ2REHE651ERX")
 );
-console.table(usersWithPostCounts);
+console.log(usersWithPostCounts);
 
 exit();

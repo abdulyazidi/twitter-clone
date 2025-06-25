@@ -359,9 +359,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
 
-        {/* Tweet Feed */}
-        <div className="divide-y divide-border ">
-          <Outlet />
+        {/* Main */}
+        <main className="divide-y divide-border ">
+          {/* Tweet Form */}
           <div>
             <div className="flex gap-4 px-4 py-2">
               <div>
@@ -372,41 +372,15 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </div>
               <div className="flex-1 flex flex-col gap-4">
                 <TweetForm action="/api/post-tweet" />
-                {/* <Textarea name="tweet" /> */}
               </div>
             </div>
           </div>
-          {loaderData.tweets.map((t: any) => (
-            <div className="flex items-center justify-between" key={t.id}>
-              <div className="flex items-center space-x-2">
-                <Avatar>
-                  <AvatarImage src={t.author.profile?.avatarURL || ""} />
-                  <AvatarFallback>
-                    {t.author.profile?.displayName
-                      ?.split(" ")
-                      .map((n: string) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold text-foreground truncate">
-                    {t.author.profile?.displayName}
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    @{t.author.username}
-                  </p>
-                </div>
-                <div>
-                  <p>{t.content}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-          {tweets.map((tweet) => (
-            <Tweet key={tweet.id} tweet={tweet} />
-          ))}
-        </div>
+
+          <Outlet />
+        </main>
       </div>
+
+      {/* Right sidebar */}
       <div className="col-span-1 hidden md:block ">
         <div className="sticky top-0 bg-card border rounded-lg h-screen overflow-y-auto">
           <div className="bg-muted/50 p-4 rounded-t-lg">

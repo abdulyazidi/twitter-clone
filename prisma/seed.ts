@@ -1,18 +1,105 @@
-import { PrismaClient, TWEET_TYPE, MEDIA_TYPE } from "@prisma-app/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { env } from "process";
+import {
+  PrismaClient,
+  TWEET_TYPE,
+  MEDIA_TYPE,
+  type User,
+  type Tweet,
+} from "@prisma-app/client";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
 
 // Instantiate Prisma Client
 const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
 
 const prisma = new PrismaClient({ adapter });
 
-async function main() {
-  console.log("🌱 Starting seed process...");
+// Promisify the scrypt function for async/await usage
+const scryptAsync = promisify(scrypt);
 
-  // 1. Clean up the database to ensure a fresh start
-  console.log("🧹 Cleaning up existing data...");
-  // The order of deletion is important to avoid foreign key constraint violations
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// DATA SAMPLES (No external libraries needed)
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+const USER_DATA = [
+  { username: "alex", displayName: "Alex" },
+  { username: "brian", displayName: "Brian C." },
+  { username: "casey", displayName: "Casey" },
+  { username: "drew", displayName: "Drew P." },
+  { username: "elliot", displayName: "Elliot" },
+  { username: "finn", displayName: "Finn" },
+  { username: "grace", displayName: "Grace" },
+  { username: "harper", displayName: "Harper" },
+  { username: "iris", displayName: "Iris" },
+  { username: "jordan", displayName: "Jordan" },
+];
+
+const TWEET_CONTENT = [
+  "Just deployed a new feature! #coding #webdev",
+  "What's everyone's favorite TypeScript feature? Mine is mapped types.",
+  "Thinking about learning Rust next. Any tips?",
+  "The new Gemini 2.5 Pro model is incredibly fast.",
+  "Finally finished my side project. It's a great feeling.",
+  "Is it just me or is CSS getting more and more powerful?",
+  "Hot take: SQL is still the best way to query data.",
+  "Just had the best coffee. Ready to tackle the day! ☕️",
+  "Looking for recommendations for a new mechanical keyboard.",
+  "The sunset today was absolutely breathtaking.",
+  "Who else is excited for the weekend?",
+];
+
+const MEDIA_URLS = {
+  IMAGE: [
+    "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5", // code
+    "https://images.unsplash.com/photo-1550745165-9bc0b252726a", // retro tech
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836", // food
+    "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8", // nature
+  ],
+  GIF: [
+    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaXBpZ3N0a3JjYjZpM3U2aGZ0eHJobWpwZ214YWFlemVmcjZ1N2N0eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bGgsc5hKvanhC/giphy.gif",
+  ],
+};
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// HELPER FUNCTIONS
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+/**
+ * Hashes a password with a random salt.
+ */
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return {
+    passwordHash: buf.toString("hex"),
+    salt,
+  };
+}
+
+/**
+ * Gets a random element from an array.
+ */
+function getRandomElement<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * Gets a random number of unique elements from an array.
+ */
+function getRandomElements<T>(arr: T[], count: number): T[] {
+  return [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
+}
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// SEEDING LOGIC
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+async function main() {
+  console.log("🌱 Start seeding...");
+
+  // 1. Clean up the database
+  console.log("🧹 Cleaning up database...");
   await prisma.like.deleteMany();
   await prisma.mention.deleteMany();
   await prisma.media.deleteMany();
@@ -21,193 +108,151 @@ async function main() {
   await prisma.userProfile.deleteMany();
   await prisma.user.deleteMany();
 
-  // 2. Create Users
-  console.log("👤 Creating users...");
-  const alice = await prisma.user.create({
-    data: {
-      username: "alice",
-      email: "alice@example.com",
-      passwordHash: "hash_for_alice",
-      salt: "salt_for_alice",
-      isPrivate: false,
-      profile: {
-        create: {
-          displayName: "Alice Smith",
-          bio: "Software developer and coffee enthusiast.",
-          location: "San Francisco, CA",
-          website: "https://alice.dev",
+  // 2. Create users and their profiles
+  console.log(`👤 Creating ${USER_DATA.length} users...`);
+  const createdUsers: User[] = [];
+  for (const userData of USER_DATA) {
+    const { passwordHash, salt } = await hashPassword("password123");
+    const user = await prisma.user.create({
+      data: {
+        username: userData.username,
+        email: `${userData.username}@example.com`,
+        passwordHash,
+        salt,
+        isPrivate: Math.random() > 0.8, // ~20% of users are private
+        profile: {
+          create: {
+            displayName: userData.displayName,
+            bio: `Hello! I'm ${userData.displayName}.`,
+          },
         },
       },
-    },
-  });
+    });
+    createdUsers.push(user);
+  }
 
-  const bob = await prisma.user.create({
-    data: {
-      username: "bob",
-      email: "bob@example.com",
-      passwordHash: "hash_for_bob",
-      salt: "salt_for_bob",
-      isPrivate: false,
-      profile: {
-        create: {
-          displayName: "Bob Johnson",
-          bio: "Designer, photographer, and traveler.",
-          avatarURL: "https://i.pravatar.cc/150?u=bob",
-        },
-      },
-    },
-  });
-
-  const charlie = await prisma.user.create({
-    data: {
-      username: "charlie",
-      email: "charlie@example.com",
-      passwordHash: "hash_for_charlie",
-      salt: "salt_for_charlie",
-      isPrivate: true, // Charlie has a private profile
-      profile: {
-        create: {
-          displayName: "Charlie Brown",
-          bio: "Just a regular person.",
-        },
-      },
-    },
-  });
-
-  console.log(
-    `✨ Created 3 users: ${alice.username}, ${bob.username}, ${charlie.username}`
-  );
-
-  // 3. Create Follow relationships
+  // 3. Create follow relationships
   console.log("🤝 Creating follow relationships...");
-  await prisma.follow.createMany({
-    data: [
-      { followerId: alice.id, followingId: bob.id }, // Alice follows Bob
-      { followerId: bob.id, followingId: alice.id }, // Bob follows Alice
-      { followerId: charlie.id, followingId: alice.id }, // Charlie follows Alice
-    ],
-  });
-  console.log("✅ Follows created.");
+  for (const user of createdUsers) {
+    const usersToFollow = getRandomElements(
+      createdUsers.filter((u) => u.id !== user.id), // Can't follow yourself
+      Math.floor(Math.random() * 5) + 1 // Follow 1-5 other users
+    );
+    await prisma.follow.createMany({
+      data: usersToFollow.map((followingUser) => ({
+        followerId: user.id,
+        followingId: followingUser.id,
+      })),
+      skipDuplicates: true,
+    });
+  }
 
-  // 4. Create Tweets
-  console.log("🐦 Creating tweets...");
+  // 4. Create tweets
+  console.log("📝 Creating 100 tweets...");
+  const createdTweets: Tweet[] = [];
+  for (let i = 0; i < 100; i++) {
+    const randomAuthor = getRandomElement(createdUsers);
+    const tweetType = getRandomElement([
+      TWEET_TYPE.TWEET,
+      TWEET_TYPE.TWEET, // Make normal tweets more common
+      TWEET_TYPE.TWEET,
+      TWEET_TYPE.REPLY,
+      TWEET_TYPE.QUOTE_TWEET,
+      TWEET_TYPE.RETWEET,
+    ]);
 
-  // A simple text tweet by Alice
-  const tweet1 = await prisma.tweet.create({
-    data: {
-      type: TWEET_TYPE.TWEET,
-      authorId: alice.id,
-      content: "Hello, world! This is my first tweet.",
-    },
-  });
+    let tweetData: any = {
+      authorId: randomAuthor.id,
+      type: tweetType,
+      content:
+        tweetType !== TWEET_TYPE.RETWEET
+          ? getRandomElement(TWEET_CONTENT)
+          : null,
+    };
 
-  // A tweet with an image by Bob
-  const tweet2 = await prisma.tweet.create({
-    data: {
-      type: TWEET_TYPE.TWEET,
-      authorId: bob.id,
-      content: "Check out this beautiful sunset!",
-      media: {
-        create: {
-          type: MEDIA_TYPE.IMAGE,
-          url: "https://picsum.photos/seed/sunset/1200/800",
+    // Add relationships for replies, quotes, and retweets
+    if (createdTweets.length > 0) {
+      const targetTweet = getRandomElement(createdTweets);
+      if (tweetType === TWEET_TYPE.REPLY) {
+        tweetData.parentTweetId = targetTweet.id;
+      } else if (tweetType === TWEET_TYPE.QUOTE_TWEET) {
+        tweetData.quotedTweetId = targetTweet.id;
+      } else if (tweetType === TWEET_TYPE.RETWEET) {
+        tweetData.retweetedTweetId = targetTweet.id;
+      }
+    }
+
+    const tweet = await prisma.tweet.create({ data: tweetData });
+
+    // Add media to some tweets
+    if (Math.random() > 0.6) {
+      // ~40% of tweets get media
+      const mediaType = getRandomElement([MEDIA_TYPE.IMAGE, MEDIA_TYPE.GIF]);
+      const url =
+        mediaType === MEDIA_TYPE.IMAGE
+          ? getRandomElement(MEDIA_URLS.IMAGE)
+          : getRandomElement(MEDIA_URLS.GIF);
+
+      await prisma.media.create({
+        data: {
+          tweetId: tweet.id,
+          type: mediaType,
+          url: url,
         },
-      },
-    },
-  });
+      });
+    }
+    createdTweets.push(tweet);
+  }
 
-  // A reply by Alice to Bob's tweet
-  const tweet3_reply = await prisma.tweet.create({
-    data: {
-      type: TWEET_TYPE.REPLY,
-      authorId: alice.id,
-      content: "Wow, that's a stunning photo!",
-      parentTweetId: tweet2.id,
-    },
-  });
-
-  // A quote tweet by Charlie of Alice's first tweet
-  const tweet4_quote = await prisma.tweet.create({
-    data: {
-      type: TWEET_TYPE.QUOTE_TWEET,
-      authorId: charlie.id,
-      content: "Couldn't agree more.",
-      quotedTweetId: tweet1.id,
-    },
-  });
-
-  // A retweet by Bob of Alice's first tweet
-  const tweet5_retweet = await prisma.tweet.create({
-    data: {
-      type: TWEET_TYPE.RETWEET,
-      authorId: bob.id,
-      retweetedTweetId: tweet1.id,
-      // Retweets typically don't have their own content
-    },
-  });
-
-  console.log("✅ Tweets, a reply, a quote, and a retweet created.");
-
-  // 5. Create Likes
+  // 5. Create likes
   console.log("❤️ Creating likes...");
+  const likesToCreate = [];
+  for (let i = 0; i < 200; i++) {
+    likesToCreate.push({
+      userId: getRandomElement(createdUsers).id,
+      tweetId: getRandomElement(createdTweets).id,
+    });
+  }
   await prisma.like.createMany({
-    data: [
-      { userId: charlie.id, tweetId: tweet1.id }, // Charlie likes Alice's tweet
-      { userId: alice.id, tweetId: tweet2.id }, // Alice likes Bob's tweet
-      { userId: bob.id, tweetId: tweet1.id }, // Bob also likes Alice's tweet
-    ],
+    data: likesToCreate,
+    skipDuplicates: true, // Avoid errors on duplicate likes
   });
-  console.log("✅ Likes created.");
 
-  // 6. Create Mentions
-  console.log("🗣️ Creating mentions...");
-  // Let's add a new tweet where Alice mentions Bob
-  const tweet6_mention = await prisma.tweet.create({
-    data: {
-      type: TWEET_TYPE.TWEET,
-      authorId: alice.id,
-      content: `Having a great discussion with @${bob.username}!`,
-      mentions: {
-        create: {
-          userId: bob.id,
-        },
+  // 6. Update denormalized counts on tweets
+  console.log("🔄 Updating tweet counts...");
+  for (const tweet of createdTweets) {
+    const likeCount = await prisma.like.count({
+      where: { tweetId: tweet.id },
+    });
+    const replyCount = await prisma.tweet.count({
+      where: { parentTweetId: tweet.id },
+    });
+    const quoteCount = await prisma.tweet.count({
+      where: { quotedTweetId: tweet.id },
+    });
+    const retweetCount = await prisma.tweet.count({
+      where: { retweetedTweetId: tweet.id },
+    });
+
+    await prisma.tweet.update({
+      where: { id: tweet.id },
+      data: {
+        likeCount,
+        replyCount,
+        quoteCount,
+        retweetCount,
       },
-    },
-  });
-  console.log("✅ Mentions created.");
+    });
+  }
 
-  // 7. Update Denormalized Counters
-  // This step is crucial for keeping your data consistent.
-  console.log("🔄 Updating denormalized counters on tweets...");
-
-  await prisma.tweet.update({
-    where: { id: tweet1.id },
-    data: {
-      likeCount: 2, // Liked by Charlie and Bob
-      quoteCount: 1, // Quoted by Charlie
-      retweetCount: 1, // Retweeted by Bob
-    },
-  });
-
-  await prisma.tweet.update({
-    where: { id: tweet2.id },
-    data: {
-      likeCount: 1, // Liked by Alice
-      replyCount: 1, // Replied to by Alice
-    },
-  });
-
-  console.log("✅ Counters updated.");
-  console.log("🎉 Seed process finished successfully!");
+  console.log("✅ Seeding finished.");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ An error occurred during the seed process:");
     console.error(e);
     process.exit(1);
   })
   .finally(async () => {
-    // Close the Prisma Client connection
     await prisma.$disconnect();
   });
