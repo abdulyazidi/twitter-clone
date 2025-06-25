@@ -422,56 +422,83 @@ const iconColors: {
   pink: "hover:text-pink-500 hover:!bg-pink-500/10",
 };
 
-export function Tweet() {
-  let date = new Date();
+import type { TweetProps } from "~/lib/types";
+
+export function Tweet({ tweet }: TweetProps) {
+  const {
+    displayName,
+    userId,
+    username,
+    avatarURL,
+    content,
+    createdAt,
+    likeCount,
+    replyCount,
+    retweetCount,
+    quoteCount,
+    hasLiked,
+  } = tweet;
 
   return (
     <div className="flex gap-2 py-2 px-4">
       {/* Profile photo  */}
       <div className="">
         <Avatar className="bg-muted size-10">
-          <AvatarImage src="/favicon.ico" />
-          <AvatarFallback>AA</AvatarFallback>
+          <AvatarImage src={avatarURL || undefined} />
+          <AvatarFallback>{username.slice(0, 2) || "X"}</AvatarFallback>
         </Avatar>
       </div>
 
       {/* Content */}
       <div className="flex flex-col gap-1 w-full">
         <div className="flex gap-1 text-sm text-zinc-500">
-          <div className="font-semibold text-foreground">Abdul</div>
-          <div className="text-zinc-500">@Abdulyazidi</div>
+          <div className="font-semibold text-foreground">{displayName}</div>
+          <div className="text-zinc-500">@{username}</div>
           <span>·</span>
-          {date.toLocaleDateString(undefined, {
+          {createdAt.toLocaleDateString(undefined, {
             month: "short",
             day: "numeric",
           })}
         </div>
-        <div className="text-sm whitespace-pre-wrap">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus
-          repellendus ipsa officiis sit pariatur quaerat repudiandae ad. Totam
-          omnis voluptatum, voluptatem, aliquid est deserunt consectetur nemo
-          facilis veniam fugiat vel!
-        </div>
+        <div className="text-sm whitespace-pre-wrap">{content || ""}</div>
         {/* Buttons and icons */}
         <div className="flex justify-between text-zinc-500">
+          <Button
+            variant={"ghost"}
+            className={cn(iconColors.blue, "flex items-center gap-1")}
+          >
+            <MessageCircleIcon className="size-4" />
+            {replyCount > 0 && <span className="text-xs">{replyCount}</span>}
+          </Button>
+          <Button
+            variant={"ghost"}
+            className={cn(iconColors.green, "flex items-center gap-1")}
+          >
+            <Repeat2 className="size-5" />
+            {retweetCount + quoteCount > 0 && (
+              <span className="text-xs">{retweetCount + quoteCount}</span>
+            )}
+          </Button>
+          <Button
+            variant={"ghost"}
+            className={cn(
+              hasLiked ? "text-pink-500" : "",
+              iconColors.pink,
+              "flex items-center gap-1"
+            )}
+          >
+            <Heart className={cn("size-4", hasLiked ? "fill-current" : "")} />
+            {likeCount > 0 && <span className="text-xs">{likeCount}</span>}
+          </Button>
           <Button variant={"ghost"} className={cn(iconColors.blue)}>
-            <MessageCircleIcon />
-          </Button>
-          <Button variant={"ghost"} className={cn(iconColors.green)}>
-            <Repeat2 className="size-5 " />
-          </Button>
-          <Button variant={"ghost"} className={cn(iconColors.pink)}>
-            <Heart />
-          </Button>
-          <Button variant={"ghost"} className={cn(iconColors.blue)}>
-            <ChartNoAxesColumn />
+            <ChartNoAxesColumn className="size-4" />
           </Button>
           <div className="flex ">
             <Button variant={"ghost"} className={cn(iconColors.blue)}>
-              <Bookmark />
+              <Bookmark className="size-4" />
             </Button>
             <Button variant={"ghost"} className={cn(iconColors.blue)}>
-              <Share />
+              <Share className="size-4" />
             </Button>
           </div>
         </div>
