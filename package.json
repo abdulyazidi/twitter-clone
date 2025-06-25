@@ -7,14 +7,13 @@
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
-    "postinstall": "npx prisma generate"
+    "postinstall": "npx prisma generate --sql"
   },
   "prisma": {
-    "seed": "bun prisma/seed.ts --sql"
+    "seed": "bun prisma/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/lib-storage": "^3.832.0",
-    "@fastify/busboy": "^3.1.1",
     "@mjackson/form-data-parser": "^0.9.1",
     "@mjackson/multipart-parser": "^0.10.1",
     "@prisma/adapter-pg": "^6.10.1",
