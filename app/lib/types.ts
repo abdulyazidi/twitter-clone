@@ -17,6 +17,7 @@ export interface Tweet {
   hasBookmarked?: boolean | null;
   hasRetweetedOrQuoted?: boolean | null;
   type?: string;
+  mediaURLs?: string[] | null;
 }
 
 // Props for Tweet component
@@ -45,5 +46,6 @@ export interface NewsfeedItem {
   hasBookmarked: boolean | null;
   hasRetweetedOrQuoted: boolean | null;
   quotedTweetId: string | null;
+  mediaURLs: string[];
   // Add other fields as needed from the SQL query
 }

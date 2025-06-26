@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useFetcher } from "react-router";
+import { Link, useFetcher } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { TweetProps } from "~/lib/types";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 
 const iconColors: {
   blue: string;
@@ -40,6 +41,9 @@ export function Tweet({ tweet }: TweetProps) {
     bookmarkCount,
     hasLiked,
     hasBookmarked,
+    type,
+    hasRetweetedOrQuoted,
+    quotedTweetId,
   } = tweet;
   const [localState, setLocalState] = useState<{
     liked: typeof hasLiked;
@@ -53,6 +57,7 @@ export function Tweet({ tweet }: TweetProps) {
     bookmarkCount: bookmarkCount,
   });
   const fetcher = useFetcher();
+
   // can make them all 1 function but i like it this way for this
   function handleLike() {
     let formData = new FormData();
@@ -73,6 +78,7 @@ export function Tweet({ tweet }: TweetProps) {
       };
     });
   }
+
   function handleBookmark() {
     let formData = new FormData();
     formData.set("tweetId", id);
@@ -93,25 +99,88 @@ export function Tweet({ tweet }: TweetProps) {
     });
   }
 
-  return (
-    <div className="flex gap-2 py-2 px-4  border-zinc-900 border-b">
-      {/* Profile photo  */}
-      <div className="">
-        <Avatar className="bg-muted size-10">
-          <AvatarImage src={avatarURL || undefined} />
-          <AvatarFallback>{username.slice(0, 2) || "X"}</AvatarFallback>
+  const HoverProfileCard = () => (
+    <HoverCardContent className="w-80">
+      <div className="flex justify-between gap-4">
+        <Avatar>
+          <AvatarImage src="https://github.com/vercel.png" />
+          <AvatarFallback>VC</AvatarFallback>
         </Avatar>
+        <div className="space-y-1">
+          <h4 className="text-sm font-semibold">@nextjs</h4>
+          <p className="text-sm">
+            The React Framework – created and maintained by @vercel.
+          </p>
+          <div className="text-muted-foreground text-xs">
+            Joined December 2021
+          </div>
+        </div>
+      </div>
+    </HoverCardContent>
+  );
+
+  const DateHoverCard = () => (
+    <HoverCardContent className="">
+      <div className="text-xs space-y-1">
+        <div>
+          {createdAt.toLocaleDateString(undefined, {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </div>
+      </div>
+    </HoverCardContent>
+  );
+
+  return (
+    <div className="flex gap-2 py-2 px-4 border-zinc-900 border-b">
+      {/* Profile photo */}
+      <div className="">
+        <HoverCard openDelay={300} closeDelay={100}>
+          <HoverCardTrigger asChild>
+            <Link to={"/home"} className="hover:opacity-90">
+              <Avatar className="bg-muted size-10">
+                <AvatarImage src={avatarURL || undefined} />
+                <AvatarFallback>{username.slice(0, 2) || "X"}</AvatarFallback>
+              </Avatar>
+            </Link>
+          </HoverCardTrigger>
+          <HoverProfileCard />
+        </HoverCard>
       </div>
       {/* Content */}
       <div className="flex flex-col gap-1 w-full">
         <div className="flex gap-1 text-sm text-zinc-500">
-          <div className="font-semibold text-foreground">{displayName}</div>
-          <div className="text-zinc-500">@{username}</div>
+          <HoverCard openDelay={500} closeDelay={100}>
+            <HoverCardTrigger className="flex gap-1">
+              <Link
+                to={"/"}
+                className="font-semibold text-foreground hover:underline"
+              >
+                {displayName}
+              </Link>
+              <Link to={"/"} className="text-zinc-500">
+                @{username}
+              </Link>
+            </HoverCardTrigger>
+            <HoverProfileCard />
+          </HoverCard>
           <span>·</span>
-          {createdAt.toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-          })}
+          <HoverCard openDelay={150} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <span className="cursor-help hover:underline">
+                {createdAt.toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                })}
+              </span>
+            </HoverCardTrigger>
+            <DateHoverCard />
+          </HoverCard>
         </div>
         <div className="text-sm whitespace-pre-wrap">{content || ""}</div>
         {/* Buttons and icons */}
@@ -148,7 +217,7 @@ export function Tweet({ tweet }: TweetProps) {
           <Button variant={"ghost"} className={cn(iconColors.blue)}>
             <ChartNoAxesColumn className="size-4" />
           </Button>
-          <div className="flex ">
+          <div className="flex">
             <Button
               variant={"ghost"}
               className={cn(iconColors.blue)}
