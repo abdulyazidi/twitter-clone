@@ -9,7 +9,7 @@ export function shouldRevalidate({
   formAction,
   defaultShouldRevalidate,
 }: ShouldRevalidateFunctionArgs) {
-  const neva = ["/api/like", "/api/unlike"];
+  const neva = ["/api/like", "/api/unlike", "/api/bookmark", "/api/unbookmark"];
   if (neva.includes(formAction || "")) {
     return false;
   }
@@ -20,6 +20,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
   console.log("_home.home._index loader");
   const newsfeed = await prisma.$queryRawTyped(getUserNewsfeed(auth.userId));
+  console.log(newsfeed);
   return { newsfeed };
 }
 
@@ -29,7 +30,6 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { newsfeed } = loaderData;
-
   return (
     <div>
       {newsfeed.map((tweet: NewsfeedItem) => {
@@ -45,9 +45,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           likeCount: tweet.likeCount,
           replyCount: tweet.replyCount,
           quoteCount: tweet.quoteCount,
+          bookmarkCount: tweet.bookmarkCount,
           retweetCount: tweet.retweetCount,
           quotedTweetId: tweet.quotedTweetId,
           hasLiked: tweet.hasLiked,
+          hasBookmarked: tweet.hasBookmarked,
           hasRetweetedOrQuoted: tweet.hasRetweetedOrQuoted,
           type: tweet.type,
         };

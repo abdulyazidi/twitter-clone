@@ -18,9 +18,10 @@ const iconColors: {
   green: string;
   pink: string;
 } = {
-  blue: "hover:text-blue-400 hover:!bg-blue-400/10",
-  green: "hover:text-green-400/80 hover:!bg-green-400/10",
-  pink: "hover:text-pink-500 hover:!bg-pink-500/10",
+  blue: "group hover:text-blue-400 hover:!bg-blue-400/10 data-[checked=true]:text-blue-400",
+  green:
+    "group hover:text-green-400/80 hover:!bg-green-400/10 data-[checked=true]:text-green-400",
+  pink: "group hover:text-pink-500 hover:!bg-pink-500/10 data-[checked=true]:text-pink-500",
 };
 
 export function Tweet({ tweet }: TweetProps) {
@@ -36,14 +37,64 @@ export function Tweet({ tweet }: TweetProps) {
     replyCount,
     retweetCount,
     quoteCount,
+    bookmarkCount,
     hasLiked,
+    hasBookmarked,
   } = tweet;
+  const [localState, setLocalState] = useState<{
+    liked: typeof hasLiked;
+    likeCount: typeof likeCount;
+    bookmarked: typeof hasBookmarked;
+    bookmarkCount: typeof bookmarkCount;
+  }>({
+    liked: hasLiked,
+    likeCount: likeCount,
+    bookmarked: hasBookmarked,
+    bookmarkCount: bookmarkCount,
+  });
   const fetcher = useFetcher();
-  const [liked, setLiked] = useState<typeof hasLiked>(hasLiked);
-  const [localLikeCount, setLocalLikeCount] =
-    useState<typeof likeCount>(likeCount);
+  // can make them all 1 function but i like it this way for this
+  function handleLike() {
+    let formData = new FormData();
+    formData.set("tweetId", id);
+    fetcher.submit(formData, {
+      method: "POST",
+      action: localState.liked ? "/api/unlike" : "/api/like",
+      preventScrollReset: true,
+    });
+    setLocalState((prev) => {
+      let count = prev.liked
+        ? Math.max(0, prev.likeCount - 1)
+        : prev.likeCount + 1;
+      return {
+        ...prev,
+        liked: !prev.liked,
+        likeCount: count,
+      };
+    });
+  }
+  function handleBookmark() {
+    let formData = new FormData();
+    formData.set("tweetId", id);
+    fetcher.submit(formData, {
+      method: "POST",
+      action: localState.bookmarked ? "/api/unbookmark" : "/api/bookmark",
+      preventScrollReset: true,
+    });
+    setLocalState((prev) => {
+      let count = prev.bookmarked
+        ? Math.max(0, prev.bookmarkCount - 1)
+        : prev.bookmarkCount + 1;
+      return {
+        ...prev,
+        bookmarked: !prev.bookmarked,
+        bookmarkCount: count,
+      };
+    });
+  }
+
   return (
-    <div className="flex gap-2 py-2 px-4">
+    <div className="flex gap-2 py-2 px-4  border-zinc-900 border-b">
       {/* Profile photo  */}
       <div className="">
         <Avatar className="bg-muted size-10">
@@ -83,37 +134,30 @@ export function Tweet({ tweet }: TweetProps) {
           </Button>
           <Button
             variant={"ghost"}
-            className={cn(
-              liked ? "text-pink-500" : "",
-              iconColors.pink,
-              "flex items-center gap-1"
-            )}
-            onClick={(e) => {
-              let formData = new FormData();
-              formData.set("tweetId", id);
-              fetcher.submit(formData, {
-                method: "POST",
-                action: liked ? "/api/unlike" : "/api/like",
-                preventScrollReset: true,
-              });
-              setLiked(!liked);
-              setLocalLikeCount((prev) => {
-                let count = liked ? Math.max(0, prev - 1) : prev + 1;
-                return count;
-              });
-            }}
+            data-checked={localState.liked}
+            className={cn(iconColors.pink, "flex items-center gap-1")}
+            onClick={handleLike}
           >
-            <Heart className={cn("size-4", liked ? "fill-current" : "")} />
-            {localLikeCount > 0 && (
-              <span className="text-xs">{localLikeCount}</span>
+            <Heart
+              className={cn("size-4 group-data-[checked=true]:fill-current")}
+            />
+            {localState.likeCount > 0 && (
+              <span className="text-xs">{localState.likeCount}</span>
             )}
           </Button>
           <Button variant={"ghost"} className={cn(iconColors.blue)}>
             <ChartNoAxesColumn className="size-4" />
           </Button>
           <div className="flex ">
-            <Button variant={"ghost"} className={cn(iconColors.blue)}>
-              <Bookmark className="size-4" />
+            <Button
+              variant={"ghost"}
+              className={cn(iconColors.blue)}
+              onClick={handleBookmark}
+              data-checked={localState.bookmarked}
+            >
+              <Bookmark
+                className={cn("size-4 group-data-[checked=true]:fill-current")}
+              />
             </Button>
             <Button variant={"ghost"} className={cn(iconColors.blue)}>
               <Share className="size-4" />

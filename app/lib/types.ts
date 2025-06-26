@@ -11,8 +11,10 @@ export interface Tweet {
   replyCount: number;
   quoteCount: number;
   retweetCount: number;
+  bookmarkCount: number;
   quotedTweetId?: string | null;
   hasLiked?: boolean | null;
+  hasBookmarked?: boolean | null;
   hasRetweetedOrQuoted?: boolean | null;
   type?: string;
 }
@@ -31,6 +33,7 @@ export interface NewsfeedItem {
   replyCount: number;
   quoteCount: number;
   retweetCount: number;
+  bookmarkCount: number;
   createdAt: Date;
   authorId: string;
   authorUsername: string;
@@ -39,6 +42,7 @@ export interface NewsfeedItem {
   authorFollowerCount: bigint | null;
   authorFollowingCount: bigint | null;
   hasLiked: boolean | null;
+  hasBookmarked: boolean | null;
   hasRetweetedOrQuoted: boolean | null;
   quotedTweetId: string | null;
   // Add other fields as needed from the SQL query

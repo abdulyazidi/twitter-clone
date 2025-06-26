@@ -29,6 +29,7 @@ model User {
   following    Follow[]     @relation(name: "following")
   sessions     Session[]
   mentions     Mention[]
+  bookmarks    Bookmark[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 }
@@ -98,15 +99,16 @@ model Tweet {
   mentions Mention[]
   likes    Like[]
 
+  Bookmark      Bookmark[]
   //Denormalized counters
-  likeCount    Int     @default(0)
-  replyCount   Int     @default(0)
-  quoteCount   Int     @default(0)
-  retweetCount Int     @default(0)
-  media        Media[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  likeCount     Int        @default(0)
+  replyCount    Int        @default(0)
+  quoteCount    Int        @default(0)
+  retweetCount  Int        @default(0)
+  bookmarkCount Int        @default(0)
+  media         Media[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
 
 model Media {
@@ -143,6 +145,16 @@ model Like {
   createdAt DateTime @default(now())
 
   @@id([userId, tweetId]) // A user can only like a tweet once
+}
+
+model Bookmark {
+  userId    String
+  tweetId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tweet     Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, tweetId]) // A user can only bookmark a tweet once
 }
 
 model Session {

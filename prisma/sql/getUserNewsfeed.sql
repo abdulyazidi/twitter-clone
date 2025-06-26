@@ -6,6 +6,7 @@ SELECT
   t."replyCount",
   t."quoteCount",
   t."retweetCount",
+  t."bookmarkCount",
   t."createdAt",
   u.id AS "authorId",
   u.username AS "authorUsername",
@@ -37,6 +38,10 @@ SELECT
     ELSE FALSE
   END AS "hasLiked",
   CASE
+    WHEN b."userId" IS NOT NULL THEN TRUE
+    ELSE FALSE
+  END AS "hasBookmarked",
+  CASE
     WHEN rt."authorId" IS NOT NULL THEN TRUE
     ELSE FALSE
   END AS "hasRetweetedOrQuoted",
@@ -67,6 +72,8 @@ FROM
   LEFT JOIN "UserProfile" AS q_author_profile ON q_author.id = q_author_profile."userId"
   LEFT JOIN "Like" AS l ON l."tweetId" = t.id
   AND l."userId" = $1
+  LEFT JOIN "Bookmark" AS b ON b."tweetId" = t.id
+  AND b."userId" = $1
   LEFT JOIN "Tweet" AS rt ON rt."authorId" = $1
   AND (
     rt."retweetedTweetId" = t.id
@@ -94,6 +101,7 @@ GROUP BY
   u.id,
   up."userId",
   l."userId",
+  b."userId",
   rt."authorId",
   qt.id,
   q_author.id,
