@@ -14,29 +14,27 @@ export async function action({ request }: Route.ActionArgs) {
   const tweetId = formData.get("tweetId")?.toString();
   if (!tweetId) return null;
   try {
-    await prisma.$transaction([
-      prisma.like.delete({
-        where: {
-          userId_tweetId: {
-            tweetId: tweetId,
-            userId: auth.userId,
+    await prisma.tweet.update({
+      where: {
+        id: tweetId,
+      },
+      data: {
+        likeCount: { decrement: 1 },
+        likes: {
+          delete: {
+            userId_tweetId: {
+              tweetId: tweetId,
+              userId: auth.userId,
+            },
           },
         },
-      }),
-      prisma.tweet.update({
-        where: {
-          id: tweetId,
-        },
-        data: {
-          likeCount: { decrement: 1 },
-        },
-      }),
-    ]);
+      },
+    });
     console.log(`Tweet ${tweetId} unliked by ${auth.userId}`);
     return true;
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      if (err.code === "P2025") {
+      if (err.code === "P2017") {
         console.warn(
           `Attempt to remove like on non-existent like, tweet or user\ntweet id:  ${tweetId} userId: ${auth.userId}`
         );

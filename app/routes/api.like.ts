@@ -15,22 +15,19 @@ export async function action({ request }: Route.ActionArgs) {
   const tweetId = formData.get("tweetId")?.toString();
   if (!tweetId) return null;
   try {
-    await prisma.$transaction([
-      prisma.like.create({
-        data: {
-          tweetId: tweetId,
-          userId: auth.userId,
+    await prisma.tweet.update({
+      where: {
+        id: tweetId,
+      },
+      data: {
+        likeCount: { increment: 1 },
+        likes: {
+          create: {
+            userId: auth.userId,
+          },
         },
-      }),
-      prisma.tweet.update({
-        where: {
-          id: tweetId,
-        },
-        data: {
-          likeCount: { increment: 1 },
-        },
-      }),
-    ]);
+      },
+    });
     console.log(`Tweet ${tweetId} liked by ${auth.userId}`);
 
     return true;
