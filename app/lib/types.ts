@@ -1,7 +1,7 @@
 // Tweet types for the application
 export interface Tweet {
   id: string;
-  userId: string;
+  authorId: string;
   username: string;
   displayName: string;
   bio?: string | null;
@@ -19,6 +19,9 @@ export interface Tweet {
   hasRetweetedOrQuoted?: boolean | null;
   type?: string;
   mediaURLs?: string[] | null;
+  isFollowingAuthor?: boolean | null;
+  followingCount: number;
+  followerCount: number;
 }
 
 // Props for Tweet component

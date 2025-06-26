@@ -29,7 +29,7 @@ export function Tweet({ tweet }: TweetProps) {
   const {
     id,
     displayName,
-    userId,
+    authorId,
     username,
     avatarURL,
     content,
@@ -46,17 +46,26 @@ export function Tweet({ tweet }: TweetProps) {
     quotedTweetId,
     bio,
     mediaURLs,
+    isFollowingAuthor,
+    followingCount,
+    followerCount,
   } = tweet;
   const [localState, setLocalState] = useState<{
     liked: typeof hasLiked;
     likeCount: typeof likeCount;
     bookmarked: typeof hasBookmarked;
     bookmarkCount: typeof bookmarkCount;
+    isFollowingAuthor: typeof isFollowingAuthor;
+    followingCount: typeof followingCount;
+    followerCount: typeof followerCount;
   }>({
     liked: hasLiked,
     likeCount: likeCount,
     bookmarked: hasBookmarked,
     bookmarkCount: bookmarkCount,
+    isFollowingAuthor: isFollowingAuthor,
+    followingCount: followingCount,
+    followerCount: followerCount,
   });
   const fetcher = useFetcher();
 
@@ -77,6 +86,26 @@ export function Tweet({ tweet }: TweetProps) {
         ...prev,
         liked: !prev.liked,
         likeCount: count,
+      };
+    });
+  }
+
+  function handleFollow() {
+    let formData = new FormData();
+    formData.set("authorId", authorId);
+    // fetcher.submit(formData, {
+    //   method: "POST",
+    //   action: localState.isFollowingAuthor ? "/api/unfollow" : "/api/follow",
+    //   preventScrollReset: true,
+    // });
+    setLocalState((prev) => {
+      let count = prev.isFollowingAuthor
+        ? Math.max(0, prev.followerCount - 1)
+        : prev.followerCount + 1;
+      return {
+        ...prev,
+        isFollowingAuthor: !prev.isFollowingAuthor,
+        followerCount: count,
       };
     });
   }
@@ -123,8 +152,10 @@ export function Tweet({ tweet }: TweetProps) {
             variant="default"
             size="sm"
             className="rounded-full px-4 py-1 text-sm font-bold bg-foreground text-background hover:bg-foreground/90 transition-colors"
+            onClick={handleFollow}
+            data-checked={localState.isFollowingAuthor}
           >
-            Following
+            {localState.isFollowingAuthor ? "Unfollow" : "Follow"}
           </Button>
         </div>
 
@@ -168,14 +199,18 @@ export function Tweet({ tweet }: TweetProps) {
             to={`/${username}/following`}
             className="hover:underline text-muted-foreground"
           >
-            <span className="font-bold text-foreground">127</span>
+            <span className="font-bold text-foreground">
+              {localState.followingCount}
+            </span>
             <span className="ml-1">Following</span>
           </Link>
           <Link
             to={`/${username}/followers`}
             className="hover:underline text-muted-foreground"
           >
-            <span className="font-bold text-foreground">2.5K</span>
+            <span className="font-bold text-foreground">
+              {localState.followerCount}
+            </span>
             <span className="ml-1">Followers</span>
           </Link>
         </div>

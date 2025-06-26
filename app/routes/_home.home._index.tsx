@@ -9,7 +9,14 @@ export function shouldRevalidate({
   formAction,
   defaultShouldRevalidate,
 }: ShouldRevalidateFunctionArgs) {
-  const neva = ["/api/like", "/api/unlike", "/api/bookmark", "/api/unbookmark"];
+  const neva = [
+    "/api/like",
+    "/api/unlike",
+    "/api/bookmark",
+    "/api/unbookmark",
+    "/api/follow",
+    "/api/unfollow",
+  ];
   if (neva.includes(formAction || "")) {
     return false;
   }
@@ -36,7 +43,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         // Transform the newsfeed data to match the Tweet type
         const tweetData: TweetType = {
           id: tweet.id,
-          userId: tweet.authorId,
+          authorId: tweet.authorId,
           username: tweet.authorUsername,
           displayName: tweet.authorDisplayName,
           avatarURL: tweet.authorAvatarURL,
@@ -54,6 +61,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           type: tweet.type,
           bio: tweet.authorBio,
           mediaURLs: tweet.mediaURLs,
+          isFollowingAuthor: tweet.isFollowingAuthor,
+          followingCount: tweet.authorFollowingCount,
+          followerCount: tweet.authorFollowerCount,
         };
 
         return <Tweet key={tweet.id} tweet={tweetData} />;
