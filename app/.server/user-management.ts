@@ -22,11 +22,13 @@ export async function createNewUser({
   confirmPassword,
   ipAddress,
   userAgent,
+  displayName,
 }: {
   username: string;
   email: string;
   password: string;
   confirmPassword: string;
+  displayName?: string;
   userAgent?: string;
   ipAddress?: string;
 }) {
@@ -100,6 +102,7 @@ export async function createNewUser({
       create: {
         username: username,
         email: email,
+
         passwordHash: passwordHash,
         salt: salt,
         sessions: {
@@ -108,6 +111,11 @@ export async function createNewUser({
             userAgent,
             ipAddress,
             expiresAt: DEFAULT_SESSION_EXPIRY_DATE,
+          },
+        },
+        profile: {
+          create: {
+            displayName: displayName || username,
           },
         },
       },

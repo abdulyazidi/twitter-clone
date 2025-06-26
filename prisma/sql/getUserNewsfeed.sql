@@ -13,8 +13,8 @@ SELECT
   up."displayName" AS "authorDisplayName",
   up."avatarURL" AS "authorAvatarURL",
   up.bio AS "authorBio",
-  -- Aggregate media URLs for the main tweet
-  ARRAY_AGG (DISTINCT m.url) FILTER (
+  -- Aggregate media URLs and types for the main tweet
+  ARRAY_AGG (DISTINCT jsonb_build_object('url', m.url, 'type', m.type)) FILTER (
     WHERE
       m.url IS NOT NULL
   ) AS "mediaURLs",
@@ -44,10 +44,10 @@ SELECT
   q_author.username AS "quotedTweetAuthorUsername",
   q_author_profile."displayName" AS "quotedTweetAuthorDisplayName",
   q_author_profile."avatarURL" AS "quotedTweetAuthorAvatarURL",
-  -- Aggregate media URLs for the quoted tweet using a subquery
+  -- Aggregate media URLs and types for the quoted tweet using a subquery
   (
     SELECT
-      ARRAY_AGG (url)
+      ARRAY_AGG (jsonb_build_object('url', url, 'type', type))
     FROM
       "Media"
     WHERE
@@ -105,4 +105,4 @@ GROUP BY
 ORDER BY
   t."createdAt" DESC
 LIMIT
-  20;
+20;

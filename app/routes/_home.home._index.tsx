@@ -4,6 +4,7 @@ import { prisma, getUserNewsfeed } from "~/.server/prisma";
 import type { Tweet as TweetType, NewsfeedItem } from "~/lib/types";
 import type { ShouldRevalidateFunctionArgs } from "react-router";
 import { Tweet } from "~/components/tweet";
+import type { MEDIA_TYPE } from "@prisma-app/client";
 
 export function shouldRevalidate({
   formAction,
@@ -27,7 +28,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
   console.log("_home.home._index loader");
   const newsfeed = await prisma.$queryRawTyped(getUserNewsfeed(auth.userId));
-  console.log(newsfeed);
+  // console.log(newsfeed);
   return { newsfeed };
 }
 
@@ -60,7 +61,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           hasRetweetedOrQuoted: tweet.hasRetweetedOrQuoted,
           type: tweet.type,
           bio: tweet.authorBio,
-          mediaURLs: tweet.mediaURLs,
+          mediaURLs: tweet.mediaURLs as
+            | { url: string; type: MEDIA_TYPE }[]
+            | null,
           isFollowingAuthor: tweet.isFollowingAuthor,
           followingCount: tweet.authorFollowingCount,
           followerCount: tweet.authorFollowerCount,

@@ -13,6 +13,7 @@ import {
 import { cn } from "~/lib/utils";
 import type { TweetProps } from "~/lib/types";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
+import { AspectRatio } from "./ui/aspect-ratio";
 
 const iconColors: {
   blue: string;
@@ -216,6 +217,50 @@ export const Tweet = ({ tweet }: TweetProps) => {
           </HoverCard>
         </div>
         <div className="text-sm whitespace-pre-wrap">{content || ""}</div>
+        {/* Media  */}
+
+        {mediaURLs &&
+          (mediaURLs[0].type === "IMAGE" || mediaURLs[0].type === "GIF" ? (
+            <div className="my-3">
+              <AspectRatio
+                ratio={16 / 9}
+                className="overflow-hidden rounded-2xl border border-border"
+              >
+                <img
+                  src={mediaURLs[0].url}
+                  alt="Tweet media"
+                  className="object-cover w-full h-full hover:brightness-95 "
+                />
+              </AspectRatio>
+            </div>
+          ) : mediaURLs[0].type === "VIDEO" ? (
+            <div className="my-3">
+              <AspectRatio
+                ratio={16 / 9}
+                className="overflow-hidden rounded-2xl border border-border"
+              >
+                <video
+                  src={mediaURLs[0].url}
+                  className="object-cover w-full h-full hover:brightness-95 "
+                  autoPlay
+                  muted
+                  loop
+                />
+              </AspectRatio>
+            </div>
+          ) : mediaURLs[0].type === "AUDIO" ? (
+            <div className="my-3">
+              <AspectRatio
+                ratio={16 / 9}
+                className="overflow-hidden rounded-2xl border border-border"
+              >
+                <audio
+                  src={mediaURLs[0].url}
+                  className="object-cover w-full h-full hover:brightness-95 transition-all duration-200"
+                />
+              </AspectRatio>
+            </div>
+          ) : null)}
         {/* Buttons and icons */}
         <div className="flex justify-between text-zinc-500">
           <Button

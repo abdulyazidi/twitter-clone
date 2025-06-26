@@ -18,6 +18,7 @@
     "@mjackson/multipart-parser": "^0.10.1",
     "@prisma/adapter-pg": "^6.10.1",
     "@prisma/client": "^6.10.1",
+    "@radix-ui/react-aspect-ratio": "^1.1.7",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-hover-card": "^1.1.14",

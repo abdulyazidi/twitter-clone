@@ -1,3 +1,5 @@
+import type { MEDIA_TYPE } from "@prisma-app/client";
+
 // Tweet types for the application
 export interface Tweet {
   id: string;
@@ -18,7 +20,7 @@ export interface Tweet {
   hasBookmarked?: boolean | null;
   hasRetweetedOrQuoted?: boolean | null;
   type?: string;
-  mediaURLs?: string[] | null;
+  mediaURLs?: { url: string; type: MEDIA_TYPE }[] | null;
   isFollowingAuthor?: boolean | null;
   followingCount: number;
   followerCount: number;
@@ -51,5 +53,5 @@ export interface NewsfeedItem {
   hasBookmarked: boolean | null;
   hasRetweetedOrQuoted: boolean | null;
   quotedTweetId: string | null;
-  mediaURLs: string[];
+  mediaURLs: { url: string; type: string }[];
 }
