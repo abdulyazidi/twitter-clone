@@ -12,27 +12,15 @@ SELECT
   u.username AS "authorUsername",
   up."displayName" AS "authorDisplayName",
   up."avatarURL" AS "authorAvatarURL",
-  -- 1. Aggregate media URLs for the main tweet
+  up.bio AS "authorBio",
+  -- Aggregate media URLs for the main tweet
   ARRAY_AGG (DISTINCT m.url) FILTER (
     WHERE
       m.url IS NOT NULL
   ) AS "mediaURLs",
-  (
-    SELECT
-      COUNT(*)
-    FROM
-      "Follow"
-    WHERE
-      "followingId" = u.id
-  ) AS "authorFollowerCount",
-  (
-    SELECT
-      COUNT(*)
-    FROM
-      "Follow"
-    WHERE
-      "followerId" = u.id
-  ) AS "authorFollowingCount",
+  -- UPDATED: Replaced slow subqueries with fast denormalized counters
+  u."followersCount" AS "authorFollowerCount",
+  u."followingCount" AS "authorFollowingCount",
   CASE
     WHEN l."userId" IS NOT NULL THEN TRUE
     ELSE FALSE
@@ -45,6 +33,10 @@ SELECT
     WHEN rt."authorId" IS NOT NULL THEN TRUE
     ELSE FALSE
   END AS "hasRetweetedOrQuoted",
+  CASE
+    WHEN f_status."followerId" IS NOT NULL THEN TRUE
+    ELSE FALSE
+  END AS "isFollowingAuthor",
   qt.id AS "quotedTweetId",
   qt.content AS "quotedTweetContent",
   qt."createdAt" AS "quotedTweetCreatedAt",
@@ -52,7 +44,7 @@ SELECT
   q_author.username AS "quotedTweetAuthorUsername",
   q_author_profile."displayName" AS "quotedTweetAuthorDisplayName",
   q_author_profile."avatarURL" AS "quotedTweetAuthorAvatarURL",
-  -- 2. Aggregate media URLs for the quoted tweet using a subquery
+  -- Aggregate media URLs for the quoted tweet using a subquery
   (
     SELECT
       ARRAY_AGG (url)
@@ -65,7 +57,7 @@ FROM
   "Tweet" AS t
   JOIN "User" AS u ON t."authorId" = u.id
   LEFT JOIN "UserProfile" AS up ON u.id = up."userId"
-  -- 3. Join to get media for the main tweet
+  -- Join to get media for the main tweet
   LEFT JOIN "Media" AS m ON t.id = m."tweetId"
   LEFT JOIN "Tweet" AS qt ON t."quotedTweetId" = qt.id
   LEFT JOIN "User" AS q_author ON qt."authorId" = q_author.id
@@ -79,6 +71,9 @@ FROM
     rt."retweetedTweetId" = t.id
     OR rt."quotedTweetId" = t.id
   )
+  -- Join to check the current user's follow status on the tweet author
+  LEFT JOIN "Follow" AS f_status ON f_status."followerId" = $1
+  AND f_status."followingId" = u.id
 WHERE
   t.type IN ('TWEET', 'QUOTE_TWEET')
   AND (
@@ -93,9 +88,9 @@ WHERE
         AND f."followingId" = u.id
     )
   )
-  -- 4. New condition to exclude the user's own tweets
+  -- Exclude the user's own tweets
   AND t."authorId" != $1
-  -- 5. The GROUP BY clause to handle media aggregation
+  -- The GROUP BY clause to handle media aggregation
 GROUP BY
   t.id,
   u.id,
@@ -105,7 +100,8 @@ GROUP BY
   rt."authorId",
   qt.id,
   q_author.id,
-  q_author_profile."userId"
+  q_author_profile."userId",
+  f_status."followerId"
 ORDER BY
   t."createdAt" DESC
 LIMIT

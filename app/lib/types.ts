@@ -4,6 +4,7 @@ export interface Tweet {
   userId: string;
   username: string;
   displayName: string;
+  bio?: string | null;
   avatarURL?: string | null;
   content?: string | null;
   createdAt: Date;
@@ -25,7 +26,7 @@ export interface TweetProps {
   tweet: Tweet;
 }
 
-// Newsfeed data structure from the database query (matches SQL result)
+// Newsfeed data structure from the database query (matches SQL result) // This is useless delete later?
 export interface NewsfeedItem {
   id: string;
   type: string;
@@ -40,6 +41,7 @@ export interface NewsfeedItem {
   authorUsername: string;
   authorDisplayName: string;
   authorAvatarURL: string | null;
+  authorBio: string | null;
   authorFollowerCount: bigint | null;
   authorFollowingCount: bigint | null;
   hasLiked: boolean | null;
@@ -47,5 +49,4 @@ export interface NewsfeedItem {
   hasRetweetedOrQuoted: boolean | null;
   quotedTweetId: string | null;
   mediaURLs: string[];
-  // Add other fields as needed from the SQL query
 }

@@ -14,24 +14,27 @@ datasource db {
 
 model User {
   // Core User info
-  id           String       @id @default(ulid()) // Prefix in query/middleware thingy
-  username     String       @unique
-  email        String       @unique
+  id           String  @id @default(ulid()) // Prefix in query/middleware thingy
+  username     String  @unique
+  email        String  @unique
   passwordHash String
   salt         String
-  isPrivate    Boolean      @default(false) // is profile private
+  isPrivate    Boolean @default(false) // is profile private
+
+  followersCount Int          @default(0) // denormalize
+  followingCount Int          @default(0)
   // User related details/actions
-  tweets       Tweet[]
-  likes        Like[]
+  tweets         Tweet[]
+  likes          Like[]
   // Relations
-  profile      UserProfile?
-  followers    Follow[]     @relation(name: "followers")
-  following    Follow[]     @relation(name: "following")
-  sessions     Session[]
-  mentions     Mention[]
-  bookmarks    Bookmark[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  profile        UserProfile?
+  followers      Follow[]     @relation(name: "followers")
+  following      Follow[]     @relation(name: "following")
+  sessions       Session[]
+  mentions       Mention[]
+  bookmarks      Bookmark[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 
 model UserProfile {

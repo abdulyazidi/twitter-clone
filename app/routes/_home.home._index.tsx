@@ -32,7 +32,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { newsfeed } = loaderData;
   return (
     <div>
-      {newsfeed.map((tweet: NewsfeedItem) => {
+      {newsfeed.map((tweet) => {
         // Transform the newsfeed data to match the Tweet type
         const tweetData: TweetType = {
           id: tweet.id,
@@ -52,6 +52,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           hasBookmarked: tweet.hasBookmarked,
           hasRetweetedOrQuoted: tweet.hasRetweetedOrQuoted,
           type: tweet.type,
+          bio: tweet.authorBio,
+          mediaURLs: tweet.mediaURLs,
         };
 
         return <Tweet key={tweet.id} tweet={tweetData} />;

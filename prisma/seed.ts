@@ -100,6 +100,7 @@ async function main() {
 
   // 1. Clean up the database
   console.log("🧹 Cleaning up database...");
+  await prisma.bookmark.deleteMany(); // NEW
   await prisma.like.deleteMany();
   await prisma.mention.deleteMany();
   await prisma.media.deleteMany();
@@ -215,13 +216,30 @@ async function main() {
   }
   await prisma.like.createMany({
     data: likesToCreate,
-    skipDuplicates: true, // Avoid errors on duplicate likes
+    skipDuplicates: true,
   });
 
-  // 6. Update denormalized counts on tweets
+  // 6. Create bookmarks (NEW)
+  console.log("🔖 Creating bookmarks...");
+  const bookmarksToCreate = [];
+  for (let i = 0; i < 150; i++) {
+    bookmarksToCreate.push({
+      userId: getRandomElement(createdUsers).id,
+      tweetId: getRandomElement(createdTweets).id,
+    });
+  }
+  await prisma.bookmark.createMany({
+    data: bookmarksToCreate,
+    skipDuplicates: true,
+  });
+
+  // 7. Update denormalized counts on tweets (UPDATED)
   console.log("🔄 Updating tweet counts...");
   for (const tweet of createdTweets) {
     const likeCount = await prisma.like.count({
+      where: { tweetId: tweet.id },
+    });
+    const bookmarkCount = await prisma.bookmark.count({
       where: { tweetId: tweet.id },
     });
     const replyCount = await prisma.tweet.count({
@@ -238,9 +256,29 @@ async function main() {
       where: { id: tweet.id },
       data: {
         likeCount,
+        bookmarkCount, // NEW
         replyCount,
         quoteCount,
         retweetCount,
+      },
+    });
+  }
+
+  // 8. Update denormalized counts on users (NEW)
+  console.log("🔄 Updating user counts...");
+  for (const user of createdUsers) {
+    const followersCount = await prisma.follow.count({
+      where: { followingId: user.id },
+    });
+    const followingCount = await prisma.follow.count({
+      where: { followerId: user.id },
+    });
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        followersCount,
+        followingCount,
       },
     });
   }
