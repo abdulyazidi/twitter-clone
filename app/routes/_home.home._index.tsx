@@ -1,21 +1,24 @@
 import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.home._index";
 import { prisma, getUserNewsfeed } from "~/.server/prisma";
-import { Tweet } from "./_home.home";
 import type { Tweet as TweetType, NewsfeedItem } from "~/lib/types";
 import type { ShouldRevalidateFunctionArgs } from "react-router";
+import { Tweet } from "~/components/tweet";
 
-export function shouldRevalidate({ formAction }: ShouldRevalidateFunctionArgs) {
-  const neva = ["/api/like", "/api/remove-like"];
+export function shouldRevalidate({
+  formAction,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  const neva = ["/api/like", "/api/unlike"];
   if (neva.includes(formAction || "")) {
     return false;
   }
-  return true;
+  return defaultShouldRevalidate;
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
-  console.log("ran bro");
+  console.log("_home.home._index loader");
   const newsfeed = await prisma.$queryRawTyped(getUserNewsfeed(auth.userId));
   return { newsfeed };
 }
@@ -26,6 +29,7 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { newsfeed } = loaderData;
+
   return (
     <div>
       {newsfeed.map((tweet: NewsfeedItem) => {

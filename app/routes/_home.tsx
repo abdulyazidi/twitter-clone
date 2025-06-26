@@ -82,7 +82,7 @@ const mockUser = {
 };
 
 export async function loader({ request }: Route.LoaderArgs) {
-  console.log("layout ran");
+  console.log("_home layout ran");
 
   return null;
 }
