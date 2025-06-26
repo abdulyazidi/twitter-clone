@@ -130,4 +130,14 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Maintain scrollbar gutter when dialog is open to prevent layout shift */
+  body:has([data-state="open"]) {
+    scrollbar-gutter: stable;
+  }
+
+  /* Prevent horizontal scrollbar when dialog is open */
+  [data-radix-portal] {
+    scrollbar-gutter: stable;
+  }
 }
