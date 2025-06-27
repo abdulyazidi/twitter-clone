@@ -96,8 +96,8 @@ model Tweet {
 
   // Retweet fields
   retweetedTweetId String?
-  retweetedTweet   Tweet?  @relation("RetweetedTweets", fields: [retweetedTweetId], references: [id], onDelete: Cascade)
-  retweetedTweets  Tweet[] @relation("RetweetedTweets")
+  retweetedTweet   Tweet?  @relation("RetweetedTweets", fields: [retweetedTweetId], references: [id], onDelete: Cascade) // the tweet that was retweeted
+  retweets  Tweet[] @relation("RetweetedTweets") // list of tweets that retweeted a tweet 
 
   mentions Mention[]
   likes    Like[]
@@ -112,6 +112,9 @@ model Tweet {
   media         Media[]
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+
+  @@unique([authorId, retweetedTweetId, type], name: "unique_retweet") // prevent duplicate retweets
+
 }
 
 model Media {

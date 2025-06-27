@@ -8,6 +8,7 @@ import {
 } from "react-router";
 import { CalendarClock, Image, ImagePlay, Smile } from "lucide-react";
 import { TweetForm } from "~/components/tweet-form";
+import { Layout, LeftSide, RightSide } from "~/components/layout";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
@@ -52,8 +53,8 @@ const iconActions = [
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   return (
-    <div className="min-h-screen bg-background grid grid-cols-3 grid-flow-col gap-6 ">
-      <div className=" ring-inset col-span-3  md:col-span-2 border  ">
+    <Layout>
+      <LeftSide>
         {/* Header */}
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
           <div className="flex">
@@ -95,10 +96,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
           <Outlet />
         </main>
-      </div>
+      </LeftSide>
 
       {/* Right sidebar */}
-      <div className="col-span-1 hidden md:block ">
+      <RightSide>
         <div className="sticky top-0 bg-card border rounded-lg h-screen overflow-y-auto">
           <div className="bg-muted/50 p-4 rounded-t-lg">
             <h2 className="text-foreground font-bold">What's happening</h2>
@@ -107,8 +108,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             </p>
           </div>
         </div>
-      </div>
-    </div>
+      </RightSide>
+    </Layout>
   );
 }
 

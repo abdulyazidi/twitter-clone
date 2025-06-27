@@ -4,6 +4,7 @@ import { requireAuthRedirect } from "~/.server/auth";
 import { redirect } from "react-router";
 import { prisma } from "~/.server/prisma";
 import type { TweetProps } from "~/lib/types";
+import { Layout, LeftSide, RightSide } from "~/components/layout";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
@@ -91,8 +92,13 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   return (
-    <div>
-      <Tweet tweet={loaderData.returnedTweet} />
-    </div>
+    <Layout>
+      <LeftSide>
+        <Tweet tweet={loaderData.returnedTweet} />
+      </LeftSide>
+      <RightSide>
+        <div>Right Side</div>
+      </RightSide>
+    </Layout>
   );
 }

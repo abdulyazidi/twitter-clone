@@ -22,7 +22,7 @@ const iconColors: {
 } = {
   blue: "group hover:text-blue-400 hover:!bg-blue-400/10 data-[checked=true]:text-blue-400",
   green:
-    "group hover:text-green-400/80 hover:!bg-green-400/10 data-[checked=true]:text-green-400",
+    "group hover:text-green-400/80 hover:!bg-green-400/10 data-[checked=true]:text-green-400/80",
   pink: "group hover:text-pink-500 hover:!bg-pink-500/10 data-[checked=true]:text-pink-500",
 };
 
@@ -94,17 +94,25 @@ export const Tweet = ({ tweet }: TweetProps) => {
     likeCount: typeof likeCount;
     bookmarked: typeof hasBookmarked;
     bookmarkCount: typeof bookmarkCount;
+    retweeted: typeof hasRetweetedOrQuoted;
+    retweetCount: typeof retweetCount;
     isFollowingAuthor: typeof isFollowingAuthor;
     followingCount: typeof followingCount;
     followerCount: typeof followerCount;
+    quoteCount: typeof quoteCount;
+    replyCount: typeof replyCount;
   }>({
     liked: hasLiked,
     likeCount: likeCount,
     bookmarked: hasBookmarked,
     bookmarkCount: bookmarkCount,
+    retweeted: hasRetweetedOrQuoted,
+    retweetCount: retweetCount,
     isFollowingAuthor: isFollowingAuthor,
     followingCount: followingCount,
     followerCount: followerCount,
+    quoteCount: quoteCount,
+    replyCount: replyCount,
   });
 
   // can make them all 1 function but i like it this way for this
@@ -201,6 +209,26 @@ export const Tweet = ({ tweet }: TweetProps) => {
     navigate(tweetUrl);
   };
 
+  function handleRetweet() {
+    // make quotes
+    let formData = new FormData();
+    formData.set("tweetId", id);
+    fetcher.submit(formData, {
+      method: "POST",
+      action: localState.retweeted ? "/api/unretweet" : "/api/retweet",
+    });
+    setLocalState((prev) => {
+      let count = prev.retweeted
+        ? Math.max(0, prev.retweetCount - 1)
+        : prev.retweetCount + 1;
+      return {
+        ...prev,
+        retweeted: !prev.retweeted,
+        retweetCount: count,
+      };
+    });
+  }
+
   return (
     <TweetContent
       isCurrentTweet={isCurrentTweet}
@@ -289,10 +317,14 @@ export const Tweet = ({ tweet }: TweetProps) => {
           <Button
             variant={"ghost"}
             className={cn(iconColors.green, "flex items-center gap-1")}
+            onClick={handleRetweet}
+            data-checked={localState.retweeted}
           >
-            <Repeat2 className="size-5" />
-            {retweetCount + quoteCount > 0 && (
-              <span className="text-xs">{retweetCount + quoteCount}</span>
+            <Repeat2 className={cn("size-5 ")} />
+            {localState.retweetCount + localState.quoteCount > 0 && (
+              <span className="text-xs">
+                {localState.retweetCount + localState.quoteCount}
+              </span>
             )}
           </Button>
           <Button

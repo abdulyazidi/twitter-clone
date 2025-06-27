@@ -17,10 +17,10 @@ export function shouldRevalidate({
     "/api/unbookmark",
     "/api/follow",
     "/api/unfollow",
+    "/api/retweet",
+    "/api/unretweet",
   ];
-  console.log("huuuh", formAction);
   if (neva.includes(formAction || "")) {
-    console.log("shouldRevalidate", formAction);
     return false;
   }
   return defaultShouldRevalidate;
@@ -30,7 +30,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
   console.log("_home.home._index loader");
   const newsfeed = await prisma.$queryRawTyped(getUserNewsfeed(auth.userId));
-  console.log(newsfeed);
+  // console.log(newsfeed);
   return { newsfeed };
 }
 
