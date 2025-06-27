@@ -27,11 +27,6 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    scan({
-      enabled: true,
-    });
-  }, []);
   return (
     <html lang="en" className="dark">
       <head>
@@ -86,16 +81,5 @@ export function shouldRevalidate({
   formAction,
   defaultShouldRevalidate,
 }: ShouldRevalidateFunctionArgs) {
-  const neva = [
-    "/api/like",
-    "/api/unlike",
-    "/api/bookmark",
-    "/api/unbookmark",
-    "/api/follow",
-    "/api/unfollow",
-  ];
-  if (neva.includes(formAction || "")) {
-    return false;
-  }
-  return defaultShouldRevalidate;
+  return false;
 }

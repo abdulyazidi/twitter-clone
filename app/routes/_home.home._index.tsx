@@ -30,7 +30,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
   console.log("_home.home._index loader");
   const newsfeed = await prisma.$queryRawTyped(getUserNewsfeed(auth.userId));
-  // console.log(newsfeed);
+  console.log(newsfeed);
   return { newsfeed };
 }
 
