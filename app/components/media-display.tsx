@@ -41,9 +41,12 @@ export function MediaDisplay({ mediaURLs }: MediaDisplayProps) {
                 </AspectRatio>
               </div>
             </DialogTrigger>
-            <DialogContent className="max-w-7xl min-w-3xl w-auto h-auto p-0 bg-transparent border-none overflow-hidden">
+            <DialogContent
+              className="max-w-7xl min-w-3xl min-h-24 w-auto h-auto p-0 bg-transparent border-none overflow-hidden"
+              showCloseButton={false}
+            >
               <div className="relative">
-                <DialogClose className="absolute top-3 right-3 z-10 rounded-md bg-card p-2 text-card-foreground shadow-lg hover:outline transition-colors ">
+                <DialogClose className="absolute top-3 right-3 z-10 rounded-md bg-card p-2 text-card-foreground shadow-lg hover:ring transition-colors hover:bg-card/80 ">
                   <X className="h-5 w-5 " />
                   <span className="sr-only">Close</span>
                 </DialogClose>
