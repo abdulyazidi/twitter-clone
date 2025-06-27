@@ -42,7 +42,7 @@ export function MediaDisplay({ mediaURLs }: MediaDisplayProps) {
               </div>
             </DialogTrigger>
             <DialogContent
-              className="max-w-7xl min-w-3xl min-h-24 w-auto h-auto p-0 bg-transparent border-none overflow-hidden"
+              className="max-w-7xl min-w-2xl min-h-16 w-auto h-auto p-0 bg-transparent border-none overflow-hidden"
               showCloseButton={false}
             >
               <div className="relative">

@@ -1,15 +1,17 @@
+import { scan } from "react-scan";
 import {
   isRouteErrorResponse,
-  Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  type ShouldRevalidateFunctionArgs,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -25,6 +27,11 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    scan({
+      enabled: true,
+    });
+  }, []);
   return (
     <html lang="en" className="dark">
       <head>
@@ -73,4 +80,22 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       )}
     </main>
   );
+}
+
+export function shouldRevalidate({
+  formAction,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  const neva = [
+    "/api/like",
+    "/api/unlike",
+    "/api/bookmark",
+    "/api/unbookmark",
+    "/api/follow",
+    "/api/unfollow",
+  ];
+  if (neva.includes(formAction || "")) {
+    return false;
+  }
+  return defaultShouldRevalidate;
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useFetcher } from "react-router";
+import { Link, useFetcher, useLocation, useNavigate } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -24,6 +24,35 @@ const iconColors: {
   green:
     "group hover:text-green-400/80 hover:!bg-green-400/10 data-[checked=true]:text-green-400",
   pink: "group hover:text-pink-500 hover:!bg-pink-500/10 data-[checked=true]:text-pink-500",
+};
+
+interface TweetContentProps {
+  children: React.ReactNode;
+  isCurrentTweet: boolean;
+  onTweetClick?: (e: React.MouseEvent) => void;
+}
+
+const TweetContent = ({
+  children,
+  isCurrentTweet,
+  onTweetClick,
+}: TweetContentProps) => {
+  if (isCurrentTweet) {
+    return (
+      <div className="flex gap-2 py-2 px-4 border-zinc-900 border-b">
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex gap-2 py-2 px-4 border-zinc-900 border-b cursor-pointer hover:bg-zinc-900/30 transition-colors"
+      onClick={onTweetClick}
+    >
+      {children}
+    </div>
+  );
 };
 
 export const Tweet = ({ tweet }: TweetProps) => {
@@ -51,6 +80,15 @@ export const Tweet = ({ tweet }: TweetProps) => {
     followingCount,
     followerCount,
   } = tweet;
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const fetcher = useFetcher();
+
+  // Check if we're currently viewing this specific tweet
+  const isCurrentTweet = location.pathname === `/@${username}/${id}`;
+  const tweetUrl = `/@${username}/${id}`;
+
   const [localState, setLocalState] = useState<{
     liked: typeof hasLiked;
     likeCount: typeof likeCount;
@@ -68,7 +106,6 @@ export const Tweet = ({ tweet }: TweetProps) => {
     followingCount: followingCount,
     followerCount: followerCount,
   });
-  const fetcher = useFetcher();
 
   // can make them all 1 function but i like it this way for this
   function handleLike() {
@@ -77,7 +114,6 @@ export const Tweet = ({ tweet }: TweetProps) => {
     fetcher.submit(formData, {
       method: "POST",
       action: localState.liked ? "/api/unlike" : "/api/like",
-      preventScrollReset: true,
     });
     setLocalState((prev) => {
       let count = prev.liked
@@ -148,8 +184,28 @@ export const Tweet = ({ tweet }: TweetProps) => {
     </HoverCardContent>
   );
 
+  const handleTweetClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on interactive elements
+    const target = e.target as HTMLElement;
+    if (
+      target.closest("button") ||
+      target.closest("a") ||
+      target.closest('[role="button"]') ||
+      target.closest(".media-container") ||
+      isCurrentTweet
+    ) {
+      return;
+    }
+
+    // Navigate to tweet page
+    navigate(tweetUrl);
+  };
+
   return (
-    <div className="flex gap-2 py-2 px-4 border-zinc-900 border-b">
+    <TweetContent
+      isCurrentTweet={isCurrentTweet}
+      onTweetClick={handleTweetClick}
+    >
       {/* Profile photo */}
       <div className="">
         <HoverCard openDelay={300} closeDelay={100}>
@@ -181,12 +237,12 @@ export const Tweet = ({ tweet }: TweetProps) => {
           <HoverCard openDelay={500} closeDelay={100}>
             <HoverCardTrigger className="flex gap-1">
               <Link
-                to={`/${username}`}
+                to={`/@${username}`}
                 className="font-semibold text-foreground hover:underline"
               >
                 {displayName}
               </Link>
-              <Link to={`/${username}`} className="text-zinc-500">
+              <Link to={`/@${username}`} className="text-zinc-500">
                 @{username}
               </Link>
             </HoverCardTrigger>
@@ -218,7 +274,9 @@ export const Tweet = ({ tweet }: TweetProps) => {
         </div>
         <div className="text-sm whitespace-pre-wrap">{content || ""}</div>
         {/* Media  */}
-        <MediaDisplay mediaURLs={mediaURLs} />
+        <div className="media-container">
+          <MediaDisplay mediaURLs={mediaURLs} />
+        </div>
         {/* Buttons and icons */}
         <div className="flex justify-between text-zinc-500">
           <Button
@@ -270,7 +328,7 @@ export const Tweet = ({ tweet }: TweetProps) => {
           </div>
         </div>
       </div>
-    </div>
+    </TweetContent>
   );
 };
 

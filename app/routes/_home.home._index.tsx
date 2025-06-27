@@ -18,7 +18,9 @@ export function shouldRevalidate({
     "/api/follow",
     "/api/unfollow",
   ];
+  console.log("huuuh", formAction);
   if (neva.includes(formAction || "")) {
+    console.log("shouldRevalidate", formAction);
     return false;
   }
   return defaultShouldRevalidate;

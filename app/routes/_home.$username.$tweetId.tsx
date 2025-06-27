@@ -28,6 +28,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
               bio: true,
             },
           },
+          followers: {
+            where: {
+              followerId: auth.userId,
+            },
+            select: {
+              followerId: true,
+            },
+          },
         },
       },
       likes: {
@@ -72,6 +80,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     followerCount: tweet.author.followersCount,
     bio: tweet.author.profile?.bio,
     mediaURLs: tweet.media,
+    isFollowingAuthor: tweet.author.followers.length > 0,
   };
   return { returnedTweet };
 }
