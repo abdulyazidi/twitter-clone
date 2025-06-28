@@ -26,20 +26,27 @@ const iconColors: {
   pink: "group hover:text-pink-500 hover:!bg-pink-500/10 data-[checked=true]:text-pink-500",
 };
 
-interface TweetContentProps {
+interface TweetContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   isCurrentTweet: boolean;
-  onTweetClick?: (e: React.MouseEvent) => void;
 }
 
 const TweetContent = ({
   children,
   isCurrentTweet,
-  onTweetClick,
+  className,
+  onClick,
+  ...props
 }: TweetContentProps) => {
   if (isCurrentTweet) {
     return (
-      <div className="flex gap-2 py-2 px-4 border-zinc-900 border-b">
+      <div
+        className={cn(
+          "flex gap-2 py-2 px-4 border-zinc-900 border-b",
+          className
+        )}
+        {...props}
+      >
         {children}
       </div>
     );
@@ -47,8 +54,12 @@ const TweetContent = ({
 
   return (
     <div
-      className="flex gap-2 py-2 px-4 border-zinc-900 border-b cursor-pointer hover:bg-zinc-900/30 transition-colors"
-      onClick={onTweetClick}
+      className={cn(
+        "flex gap-2 py-2 px-4 border-zinc-900 border-b cursor-pointer hover:bg-zinc-900/30 transition-colors",
+        className
+      )}
+      onClick={onClick}
+      {...props}
     >
       {children}
     </div>
@@ -117,7 +128,6 @@ export const Tweet = ({ tweet }: TweetProps) => {
 
   // can make them all 1 function but i like it this way for this
   function handleLike(e: React.MouseEvent) {
-    e.stopPropagation();
     let formData = new FormData();
     formData.set("tweetId", id);
     fetcher.submit(formData, {
@@ -137,7 +147,6 @@ export const Tweet = ({ tweet }: TweetProps) => {
   }
 
   function handleFollow(e: React.MouseEvent) {
-    e.stopPropagation();
     let formData = new FormData();
     formData.set("authorId", authorId);
     fetcher.submit(formData, {
@@ -158,7 +167,6 @@ export const Tweet = ({ tweet }: TweetProps) => {
   }
 
   function handleBookmark(e: React.MouseEvent) {
-    e.stopPropagation();
     let formData = new FormData();
     formData.set("tweetId", id);
     fetcher.submit(formData, {
@@ -196,11 +204,24 @@ export const Tweet = ({ tweet }: TweetProps) => {
   );
 
   const handleTweetClick = (e: React.MouseEvent) => {
+    // Allow all (including propagated events) unless dataset propagation is set to stop
+    let textSelected = window.getSelection()?.toString();
+    let target = e.target as HTMLElement;
+    let propState = target.dataset.propagation;
+
+    if (textSelected) return; // If any text selected, always block navigation
+    if (propState === "block") {
+      e.stopPropagation();
+      console.log({ propState }, "Blocked");
+      return;
+    }
+
+    console.log({ propState }, "Allowed");
+
     navigate(tweetUrl);
   };
 
   function handleRetweet(e: React.MouseEvent) {
-    e.stopPropagation();
     // make quotes
     let formData = new FormData();
     formData.set("tweetId", id);
@@ -221,10 +242,7 @@ export const Tweet = ({ tweet }: TweetProps) => {
   }
 
   return (
-    <TweetContent
-      isCurrentTweet={isCurrentTweet}
-      onTweetClick={handleTweetClick}
-    >
+    <TweetContent isCurrentTweet={isCurrentTweet} onClick={handleTweetClick}>
       {/* Profile photo */}
       <div className="">
         <HoverCard openDelay={300} closeDelay={100}>
@@ -254,16 +272,18 @@ export const Tweet = ({ tweet }: TweetProps) => {
       <div className="flex flex-col gap-1 w-full">
         <div className="flex gap-1 text-sm text-zinc-500">
           <HoverCard openDelay={500} closeDelay={100}>
-            <HoverCardTrigger className="flex gap-1">
-              <Link
-                to={`/@${username}`}
-                className="font-semibold text-foreground hover:underline"
-              >
-                {displayName}
-              </Link>
-              <Link to={`/@${username}`} className="text-zinc-500">
-                @{username}
-              </Link>
+            <HoverCardTrigger className="flex gap-1" asChild>
+              <div className="flex gap-1">
+                <Link
+                  to={`/@${username}`}
+                  className="font-semibold text-foreground hover:underline"
+                >
+                  {displayName}
+                </Link>
+                <Link to={`/@${username}`} className="text-zinc-500">
+                  @{username}
+                </Link>
+              </div>
             </HoverCardTrigger>
             <HoverProfileCard
               username={username}
@@ -291,9 +311,9 @@ export const Tweet = ({ tweet }: TweetProps) => {
             <DateHoverCard />
           </HoverCard>
         </div>
-        <div className="text-sm whitespace-pre-wrap">{content || ""}</div>
+        <p className="text-sm whitespace-pre-wrap">{content || ""}</p>
         {/* Media  */}
-        <div className="media-container">
+        <div data-propagation="block">
           <MediaDisplay mediaURLs={mediaURLs} />
         </div>
         {/* Buttons and icons */}
@@ -310,6 +330,7 @@ export const Tweet = ({ tweet }: TweetProps) => {
             className={cn(iconColors.green, "flex items-center gap-1")}
             onClick={handleRetweet}
             data-checked={localState.retweeted}
+            data-propagation="block"
           >
             <Repeat2 className={cn("size-5 ")} />
             {localState.retweetCount + localState.quoteCount > 0 && (
@@ -323,6 +344,7 @@ export const Tweet = ({ tweet }: TweetProps) => {
             data-checked={localState.liked}
             className={cn(iconColors.pink, "flex items-center gap-1")}
             onClick={handleLike}
+            data-propagation="block"
           >
             <Heart
               className={cn("size-4 group-data-[checked=true]:fill-current")}
@@ -340,12 +362,17 @@ export const Tweet = ({ tweet }: TweetProps) => {
               className={cn(iconColors.blue)}
               onClick={handleBookmark}
               data-checked={localState.bookmarked}
+              data-propagation="block"
             >
               <Bookmark
                 className={cn("size-4 group-data-[checked=true]:fill-current")}
               />
             </Button>
-            <Button variant={"ghost"} className={cn(iconColors.blue)}>
+            <Button
+              variant={"ghost"}
+              className={cn(iconColors.blue)}
+              data-propagation="block"
+            >
               <Share className="size-4" />
             </Button>
           </div>

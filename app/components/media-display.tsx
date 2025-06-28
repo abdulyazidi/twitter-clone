@@ -1,6 +1,13 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { AspectRatio } from "./ui/aspect-ratio";
-import { Dialog, DialogClose, DialogContent, DialogTrigger } from "./ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 import { X } from "lucide-react";
 
 interface MediaItem {
@@ -20,7 +27,9 @@ export function MediaDisplay({ mediaURLs }: MediaDisplayProps) {
   }
 
   const media = mediaURLs[0];
-
+  // function handleClick(e: React.MouseEvent) {
+  //   e.stopPropagation();
+  // }
   const renderMedia = () => {
     switch (media.type) {
       case "IMAGE":
@@ -45,6 +54,8 @@ export function MediaDisplay({ mediaURLs }: MediaDisplayProps) {
               className="max-w-7xl min-w-2xl min-h-16 w-auto h-auto p-0 bg-transparent border-none overflow-hidden"
               showCloseButton={false}
             >
+              <DialogTitle hidden>Media modal</DialogTitle>
+              <DialogDescription hidden />
               <div className="relative">
                 <DialogClose className="absolute top-3 right-3 z-10 rounded-md bg-card p-2 text-card-foreground shadow-lg hover:ring transition-colors hover:bg-card/80 ">
                   <X className="h-5 w-5 " />
