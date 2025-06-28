@@ -57,6 +57,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           type: true,
         },
       },
+      retweets: {
+        where: {
+          retweetedTweetId: tweetId,
+          type: "RETWEET",
+          authorId: auth.userId,
+        },
+      },
     },
   });
   if (!tweet) {
@@ -81,6 +88,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     followerCount: tweet.author.followersCount,
     bio: tweet.author.profile?.bio,
     mediaURLs: tweet.media,
+    hasRetweetedOrQuoted: tweet.retweets.length > 0,
     isFollowingAuthor: tweet.author.followers.length > 0,
   };
   return { returnedTweet };

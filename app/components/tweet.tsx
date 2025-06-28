@@ -116,7 +116,8 @@ export const Tweet = ({ tweet }: TweetProps) => {
   });
 
   // can make them all 1 function but i like it this way for this
-  function handleLike() {
+  function handleLike(e: React.MouseEvent) {
+    e.stopPropagation();
     let formData = new FormData();
     formData.set("tweetId", id);
     fetcher.submit(formData, {
@@ -135,7 +136,8 @@ export const Tweet = ({ tweet }: TweetProps) => {
     });
   }
 
-  function handleFollow() {
+  function handleFollow(e: React.MouseEvent) {
+    e.stopPropagation();
     let formData = new FormData();
     formData.set("authorId", authorId);
     fetcher.submit(formData, {
@@ -155,7 +157,8 @@ export const Tweet = ({ tweet }: TweetProps) => {
     });
   }
 
-  function handleBookmark() {
+  function handleBookmark(e: React.MouseEvent) {
+    e.stopPropagation();
     let formData = new FormData();
     formData.set("tweetId", id);
     fetcher.submit(formData, {
@@ -193,23 +196,11 @@ export const Tweet = ({ tweet }: TweetProps) => {
   );
 
   const handleTweetClick = (e: React.MouseEvent) => {
-    // Don't navigate if clicking on interactive elements
-    const target = e.target as HTMLElement;
-    if (
-      target.closest("button") ||
-      target.closest("a") ||
-      target.closest('[role="button"]') ||
-      target.closest(".media-container") ||
-      isCurrentTweet
-    ) {
-      return;
-    }
-
-    // Navigate to tweet page
     navigate(tweetUrl);
   };
 
-  function handleRetweet() {
+  function handleRetweet(e: React.MouseEvent) {
+    e.stopPropagation();
     // make quotes
     let formData = new FormData();
     formData.set("tweetId", id);
@@ -375,7 +366,7 @@ export function HoverProfileCard({
   username: string;
   avatarURL: string;
   displayName: string;
-  handleFollow: () => void;
+  handleFollow: (e: React.MouseEvent) => void;
   localState: {
     isFollowingAuthor: boolean;
     followingCount: number;
