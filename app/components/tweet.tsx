@@ -207,8 +207,11 @@ export const Tweet = ({ tweet }: TweetProps) => {
     // Allow all (including propagated events) unless dataset propagation is set to stop
     let textSelected = window.getSelection()?.toString();
     let target = e.target as HTMLElement;
-    let propState = target.dataset.propagation;
-
+    let closestElement = target.closest(
+      "[data-propagation=block]"
+    ) as HTMLElement | null;
+    let propState = closestElement?.dataset.propagation;
+    console.log({ propState, closestElement }, "init");
     if (textSelected) return; // If any text selected, always block navigation
     if (propState === "block") {
       e.stopPropagation();
@@ -216,7 +219,7 @@ export const Tweet = ({ tweet }: TweetProps) => {
       return;
     }
 
-    console.log({ propState }, "Allowed");
+    console.log({ target, propState }, "Allowed");
 
     navigate(tweetUrl);
   };
@@ -247,7 +250,11 @@ export const Tweet = ({ tweet }: TweetProps) => {
       <div className="">
         <HoverCard openDelay={300} closeDelay={100}>
           <HoverCardTrigger asChild>
-            <Link to={`/@${username}`} className="hover:opacity-90">
+            <Link
+              to={`/@${username}`}
+              className="hover:opacity-90"
+              data-propagation="block"
+            >
               <Avatar className="bg-muted size-10">
                 <AvatarImage src={avatarURL || undefined} />
                 <AvatarFallback>{username.slice(0, 2) || "X"}</AvatarFallback>
@@ -265,6 +272,7 @@ export const Tweet = ({ tweet }: TweetProps) => {
               followerCount: localState.followerCount || 0,
             }}
             bio={bio || ""}
+            data-propagation="block"
           />
         </HoverCard>
       </div>
@@ -277,10 +285,15 @@ export const Tweet = ({ tweet }: TweetProps) => {
                 <Link
                   to={`/@${username}`}
                   className="font-semibold text-foreground hover:underline"
+                  data-propagation="block"
                 >
                   {displayName}
                 </Link>
-                <Link to={`/@${username}`} className="text-zinc-500">
+                <Link
+                  to={`/@${username}`}
+                  className="text-zinc-500 hover:underline"
+                  data-propagation="block"
+                >
                   @{username}
                 </Link>
               </div>
@@ -296,6 +309,7 @@ export const Tweet = ({ tweet }: TweetProps) => {
                 followerCount: localState.followerCount || 0,
               }}
               bio={bio || ""}
+              data-propagation="block"
             />
           </HoverCard>
           <span>·</span>
@@ -313,14 +327,13 @@ export const Tweet = ({ tweet }: TweetProps) => {
         </div>
         <p className="text-sm whitespace-pre-wrap">{content || ""}</p>
         {/* Media  */}
-        <div data-propagation="block">
-          <MediaDisplay mediaURLs={mediaURLs} />
-        </div>
+        <MediaDisplay mediaURLs={mediaURLs} data-propagation="block" />
         {/* Buttons and icons */}
         <div className="flex justify-between text-zinc-500">
           <Button
             variant={"ghost"}
             className={cn(iconColors.blue, "flex items-center gap-1")}
+            data-propagation="block"
           >
             <MessageCircleIcon className="size-4" />
             {replyCount > 0 && <span className="text-xs">{replyCount}</span>}
@@ -353,7 +366,11 @@ export const Tweet = ({ tweet }: TweetProps) => {
               <span className="text-xs">{localState.likeCount}</span>
             )}
           </Button>
-          <Button variant={"ghost"} className={cn(iconColors.blue)}>
+          <Button
+            variant={"ghost"}
+            className={cn(iconColors.blue)}
+            data-propagation="block"
+          >
             <ChartNoAxesColumn className="size-4" />
           </Button>
           <div className="flex">
@@ -389,6 +406,7 @@ export function HoverProfileCard({
   handleFollow,
   localState,
   bio,
+  ...props
 }: {
   username: string;
   avatarURL: string;
@@ -403,7 +421,10 @@ export function HoverProfileCard({
 }) {
   const { isFollowingAuthor, followingCount, followerCount } = localState;
   return (
-    <HoverCardContent className="w-72 bg-background shadow-lg border border-border rounded-2xl p-0">
+    <HoverCardContent
+      className="w-72 bg-background shadow-lg border border-border rounded-2xl p-0"
+      {...props}
+    >
       <div className="flex flex-col gap-3 p-4">
         {/* Avatar and Follow Button */}
         <div className="flex justify-between items-start">

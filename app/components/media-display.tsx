@@ -17,9 +17,10 @@ interface MediaItem {
 
 interface MediaDisplayProps {
   mediaURLs: MediaItem[] | null | undefined;
+  [key: `data-${string}`]: string | undefined;
 }
 
-export function MediaDisplay({ mediaURLs }: MediaDisplayProps) {
+export function MediaDisplay({ mediaURLs, ...props }: MediaDisplayProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   if (!mediaURLs || mediaURLs.length === 0) {
@@ -36,7 +37,7 @@ export function MediaDisplay({ mediaURLs }: MediaDisplayProps) {
       case "GIF":
         return (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
+            <DialogTrigger asChild {...props}>
               <div className="cursor-pointer">
                 <AspectRatio
                   ratio={16 / 9}
@@ -53,6 +54,7 @@ export function MediaDisplay({ mediaURLs }: MediaDisplayProps) {
             <DialogContent
               className="max-w-7xl min-w-2xl min-h-16 w-auto h-auto p-0 bg-transparent border-none overflow-hidden"
               showCloseButton={false}
+              {...props}
             >
               <DialogTitle hidden>Media modal</DialogTitle>
               <DialogDescription hidden />
