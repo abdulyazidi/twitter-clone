@@ -52,7 +52,7 @@ export function MediaDisplay({ mediaURLs, ...props }: MediaDisplayProps) {
               </div>
             </DialogTrigger>
             <DialogContent
-              className="max-w-7xl min-w-2xl min-h-16 w-auto h-auto p-0 bg-transparent border-none overflow-hidden"
+              className=" lg:min-w-[80vh] p-0 bg-transparent border-none overflow-hidden"
               showCloseButton={false}
               {...props}
             >

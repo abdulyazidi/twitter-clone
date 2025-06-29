@@ -80,6 +80,7 @@ export async function action({ request }: Route.ActionArgs) {
       data: {
         type: "TWEET",
         authorId: auth.userId,
+        content: tweet,
         media: media
           ? {
               create: {

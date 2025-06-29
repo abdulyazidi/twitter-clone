@@ -8,11 +8,11 @@ import { useFileUpload } from "~/hooks/use-file-upload";
 import { cn } from "~/lib/utils";
 import { Progress } from "~/components/ui/progress";
 
-export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
-  const maxSizeMB = 50;
-  const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
-  const maxFiles = 1;
+const maxSizeMB = 50;
+const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
+const maxFiles = 1;
 
+export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
   const [fileUploadStates, fileUploadActions] = useFileUpload({
     multiple: false,
     maxFiles,
@@ -54,7 +54,7 @@ export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
         fileUploadActions.clearFiles();
         setIsPosting(false);
         setProg(0);
-      }, 500);
+      }, 250); // timeout feels better than instant for this one imo
     }
 
     return () => clearProgressInterval();

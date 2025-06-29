@@ -1,4 +1,5 @@
 import type { MEDIA_TYPE } from "@prisma-app/client";
+import type { LucideIcon } from "lucide-react";
 
 // Tweet types for the application
 export interface Tweet {
@@ -55,3 +56,9 @@ export interface NewsfeedItem {
   quotedTweetId: string | null;
   mediaURLs: { url: string; type: string }[];
 }
+
+export type IconColors = {
+  blue: string;
+  green: string;
+  pink: string;
+};

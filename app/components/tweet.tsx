@@ -14,17 +14,7 @@ import { cn } from "~/lib/utils";
 import type { TweetProps } from "~/lib/types";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { MediaDisplay } from "./media-display";
-
-const iconColors: {
-  blue: string;
-  green: string;
-  pink: string;
-} = {
-  blue: "group hover:text-blue-400 hover:!bg-blue-400/10 data-[checked=true]:text-blue-400",
-  green:
-    "group hover:text-green-400/80 hover:!bg-green-400/10 data-[checked=true]:text-green-400/80",
-  pink: "group hover:text-pink-500 hover:!bg-pink-500/10 data-[checked=true]:text-pink-500",
-};
+import { InteractionButton } from "./interaction-button";
 
 interface TweetContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -329,69 +319,53 @@ export const Tweet = ({ tweet }: TweetProps) => {
         {/* Media  */}
         <MediaDisplay mediaURLs={mediaURLs} data-propagation="block" />
         {/* Buttons and icons */}
-        <div className="flex justify-between text-zinc-500">
-          <Button
-            variant={"ghost"}
-            className={cn(iconColors.blue, "flex items-center gap-1")}
+        <div className="grid grid-cols-5 text-zinc-500">
+          {/* TODO: refine types and map over */}
+          <InteractionButton
+            Icon={MessageCircleIcon}
+            color={"blue"}
+            count={replyCount}
             data-propagation="block"
-          >
-            <MessageCircleIcon className="size-4" />
-            {replyCount > 0 && <span className="text-xs">{replyCount}</span>}
-          </Button>
-          <Button
-            variant={"ghost"}
-            className={cn(iconColors.green, "flex items-center gap-1")}
+          />
+          <InteractionButton
+            Icon={Repeat2}
+            color={"green"}
+            active={localState.retweeted}
+            count={localState.retweetCount + localState.quoteCount}
+            data-propagation="block"
+            iconClassName="group-data-[checked=true]:fill-none group-data-[checked=true]:text-green-500 size-5"
             onClick={handleRetweet}
-            data-checked={localState.retweeted}
+          />
+          <InteractionButton
+            Icon={Heart}
+            color={"pink"}
+            active={localState.liked}
+            count={localState.likeCount}
             data-propagation="block"
-          >
-            <Repeat2 className={cn("size-5 ")} />
-            {localState.retweetCount + localState.quoteCount > 0 && (
-              <span className="text-xs">
-                {localState.retweetCount + localState.quoteCount}
-              </span>
-            )}
-          </Button>
-          <Button
-            variant={"ghost"}
-            data-checked={localState.liked}
-            className={cn(iconColors.pink, "flex items-center gap-1")}
             onClick={handleLike}
+          />
+
+          <InteractionButton
+            Icon={ChartNoAxesColumn}
+            color={"blue"}
+            count={0}
             data-propagation="block"
-          >
-            <Heart
-              className={cn("size-4 group-data-[checked=true]:fill-current")}
-            />
-            {localState.likeCount > 0 && (
-              <span className="text-xs">{localState.likeCount}</span>
-            )}
-          </Button>
-          <Button
-            variant={"ghost"}
-            className={cn(iconColors.blue)}
-            data-propagation="block"
-          >
-            <ChartNoAxesColumn className="size-4" />
-          </Button>
+          />
           <div className="flex">
-            <Button
-              variant={"ghost"}
-              className={cn(iconColors.blue)}
+            <InteractionButton
+              Icon={Bookmark}
+              color={"blue"}
+              count={localState.bookmarkCount}
+              active={localState.bookmarked}
+              data-propagation="block"
               onClick={handleBookmark}
-              data-checked={localState.bookmarked}
+            />
+            <InteractionButton
+              Icon={Share}
+              color={"blue"}
+              count={0}
               data-propagation="block"
-            >
-              <Bookmark
-                className={cn("size-4 group-data-[checked=true]:fill-current")}
-              />
-            </Button>
-            <Button
-              variant={"ghost"}
-              className={cn(iconColors.blue)}
-              data-propagation="block"
-            >
-              <Share className="size-4" />
-            </Button>
+            />
           </div>
         </div>
       </div>
