@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useFetcher, useLocation, useNavigate } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -15,6 +15,8 @@ import type { TweetProps } from "~/lib/types";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { MediaDisplay } from "./media-display";
 import { InteractionButton } from "./interaction-button";
+import { Dialog, DialogContent } from "./ui/dialog";
+import { TweetForm } from "./tweet-form";
 
 interface TweetContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -234,10 +236,20 @@ export const Tweet = ({ tweet }: TweetProps) => {
     });
   }
 
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  function handleReply(e: React.MouseEvent) {
+    setIsOpen(!isOpen);
+  }
+
   return (
     <TweetContent isCurrentTweet={isCurrentTweet} onClick={handleTweetClick}>
       {/* Profile photo */}
       <div className="">
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent data-propagation="block">
+            <TweetForm action="/api/post-tweet" />
+          </DialogContent>
+        </Dialog>
         <HoverCard openDelay={300} closeDelay={100}>
           <HoverCardTrigger asChild>
             <Link
@@ -326,6 +338,7 @@ export const Tweet = ({ tweet }: TweetProps) => {
             color={"blue"}
             count={replyCount}
             data-propagation="block"
+            onClick={handleReply}
           />
           <InteractionButton
             Icon={Repeat2}
