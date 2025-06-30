@@ -81,17 +81,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <main className="divide-y divide-border ">
           {/* Tweet Form */}
           <div>
-            <div className="flex gap-4 px-4 py-2">
-              <div>
-                <Avatar className="size-12 bg-muted">
-                  <AvatarImage src="logo-dark.svg"></AvatarImage>
-                  <AvatarFallback>FA</AvatarFallback>
-                </Avatar>
-              </div>
-              <div className="flex-1 flex flex-col gap-4">
-                <TweetForm action="/api/post-tweet" />
-              </div>
-            </div>
+            <TweetForm action="/api/post-tweet" />
           </div>
 
           <Outlet />

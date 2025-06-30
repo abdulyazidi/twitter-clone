@@ -7,12 +7,24 @@ import FileUploadComponent from "~/components/file-upload";
 import { useFileUpload } from "~/hooks/use-file-upload";
 import { cn } from "~/lib/utils";
 import { Progress } from "~/components/ui/progress";
+import type { TweetProps } from "~/lib/types";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 const maxSizeMB = 50;
 const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
 const maxFiles = 1;
 
-export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
+export function TweetForm({
+  action = "api/post-tweet",
+  modalMode,
+  parentTweet,
+}: {
+  action?: string;
+  modalMode?: boolean;
+  parentTweet?: TweetProps;
+}) {
+  // i want to set a type, normal or a reply type and adjust the thing based on it.
+  // if type form
   const [fileUploadStates, fileUploadActions] = useFileUpload({
     multiple: false,
     maxFiles,
@@ -84,27 +96,40 @@ export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
   let intervalId: NodeJS.Timeout | null = null;
   return (
     <>
+      {`${modalMode}`}
       {isPosting && <Progress value={prog} className="h-1" />}
-      <div
-        className={cn("", isPosting ? "pointer-events-none opacity-50" : "")}
-      >
-        <Textarea
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-          }}
-          className="dark:bg-transparent border-none focus-visible:ring-0 md:text-2xl break-all resize-none placeholder:text-zinc-500/90"
-          placeholder="What's happening?"
-          name="tweet"
-        />
-        <FileUploadComponent
-          fileUploadActions={fileUploadActions}
-          fileUploadStates={fileUploadStates}
-          maxFiles={maxFiles.toString()}
-          maxSizeMB={maxSizeMB.toString()}
-        />
-        <div className="flex gap-4 items-center">
-          {/* {iconActions.map((action, index) => (
+
+      <div className="flex gap-4 p-4">
+        <div>
+          <Avatar className="size-12 bg-muted">
+            <AvatarImage src="logo-dark.svg"></AvatarImage>
+            <AvatarFallback>FA</AvatarFallback>
+          </Avatar>
+        </div>
+        <div className="flex-1 flex flex-col gap-4">
+          <div
+            className={cn(
+              "",
+              isPosting ? "pointer-events-none opacity-50" : ""
+            )}
+          >
+            <Textarea
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+              }}
+              className="dark:bg-transparent border-none focus-visible:ring-0 md:text-2xl break-all resize-none placeholder:text-zinc-500/90"
+              placeholder="What's happening?"
+              name="tweet"
+            />
+            <FileUploadComponent
+              fileUploadActions={fileUploadActions}
+              fileUploadStates={fileUploadStates}
+              maxFiles={maxFiles.toString()}
+              maxSizeMB={maxSizeMB.toString()}
+            />
+            <div className="flex gap-4 items-center">
+              {/* {iconActions.map((action, index) => (
             <button
               key={index}
               type="button"
@@ -114,18 +139,20 @@ export function TweetForm({ action = "api/post-tweet" }: { action?: string }) {
               <action.icon className="size-5" />
             </button>
           ))} */}
-          <div className="flex items-center ml-auto ">
-            <CharacterCountIndicator currentLength={input.length} />
-            <Button
-              type="submit"
-              name="_action"
-              value={"tweeting"}
-              size={"lg"}
-              className="ml-auto rounded-full"
-              onClick={handleSubmit}
-            >
-              Post
-            </Button>
+              <div className="flex items-center ml-auto ">
+                <CharacterCountIndicator currentLength={input.length} />
+                <Button
+                  type="submit"
+                  name="_action"
+                  value={"tweeting"}
+                  size={"lg"}
+                  className="ml-auto rounded-full"
+                  onClick={handleSubmit}
+                >
+                  Post
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

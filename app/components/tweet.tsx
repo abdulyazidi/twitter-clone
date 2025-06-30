@@ -246,8 +246,12 @@ export const Tweet = ({ tweet }: TweetProps) => {
       {/* Profile photo */}
       <div className="">
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogContent data-propagation="block">
-            <TweetForm action="/api/post-tweet" />
+          <DialogContent data-propagation="block" className="p-0">
+            <TweetForm
+              action="/api/post-tweet"
+              modalMode
+              parentTweet={{ tweet }}
+            />
           </DialogContent>
         </Dialog>
         <HoverCard openDelay={300} closeDelay={100}>

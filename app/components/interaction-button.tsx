@@ -28,7 +28,7 @@ export function InteractionButton({
       variant={"ghost"}
       className={cn(
         iconColors[color],
-        "flex items-center gap-1 w-12",
+        "flex items-center gap-1 w-min",
         className
       )}
       {...props}
@@ -40,7 +40,7 @@ export function InteractionButton({
           iconClassName
         )}
       />
-      <span className="text-xs">{count}</span>
+      {count > 0 ? <span className="text-xs">{count}</span> : null}
     </Button>
   );
 }
