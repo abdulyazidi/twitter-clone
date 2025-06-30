@@ -9,22 +9,29 @@ import { cn } from "~/lib/utils";
 import { Progress } from "~/components/ui/progress";
 import type { TweetProps } from "~/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Tweet } from "./tweet";
+import { TWEET_TYPE } from "@prisma-app/client";
 
 const maxSizeMB = 50;
 const maxSize = maxSizeMB * 1024 * 1024; // 50MB default
 const maxFiles = 1;
 
+type TweetFormMode = "post" | "reply";
+
+interface TweetFormProps {
+  action?: string;
+  modalMode?: boolean;
+  parentTweet?: TweetProps;
+}
+
 export function TweetForm({
   action = "api/post-tweet",
   modalMode,
   parentTweet,
-}: {
-  action?: string;
-  modalMode?: boolean;
-  parentTweet?: TweetProps;
-}) {
-  // i want to set a type, normal or a reply type and adjust the thing based on it.
-  // if type form
+}: TweetFormProps) {
+  // Determine mode based on whether parentTweet exists
+  const mode: TweetFormMode = parentTweet ? "reply" : "post";
+
   const [fileUploadStates, fileUploadActions] = useFileUpload({
     multiple: false,
     maxFiles,
@@ -66,17 +73,27 @@ export function TweetForm({
         fileUploadActions.clearFiles();
         setIsPosting(false);
         setProg(0);
-      }, 250); // timeout feels better than instant for this one imo
+      }, 250);
     }
 
     return () => clearProgressInterval();
   }, [fetcher.state]);
+
   const handleSubmit = () => {
     if (!input && fileUploadStates.files.length === 0) {
       return;
     }
     const formData = new FormData();
     formData.append("tweet", input);
+
+    // Add tweet type and parent ID based on mode - type-safe with enum values
+    if (mode === "reply" && parentTweet) {
+      formData.append("replyToId", parentTweet.tweet.id);
+      formData.append("type", TWEET_TYPE.REPLY);
+    } else {
+      formData.append("type", TWEET_TYPE.TWEET);
+    }
+
     fileUploadStates.files.forEach((file) => {
       if (file.file instanceof File) {
         formData.append("media", file.file);
@@ -89,15 +106,39 @@ export function TweetForm({
       action,
       preventScrollReset: true,
     });
-
-    // moved clearing inputs to the useEffect to get a better is posting UX
   };
+
   const [prog, setProg] = useState(0);
-  let intervalId: NodeJS.Timeout | null = null;
+
+  const getPlaceholderText = (): string => {
+    if (mode === "reply" && parentTweet) {
+      return `Reply to @${parentTweet.tweet.username}`;
+    }
+    return "What's happening?";
+  };
+
+  const getButtonText = (): string => {
+    return mode === "reply" ? "Reply" : "Post";
+  };
+
+  const getActionValue = (): string => {
+    return mode === "reply" ? "replying" : "tweeting";
+  };
+
   return (
-    <>
-      {`${modalMode}`}
+    <div className={cn("w-full", modalMode && "max-w-2xl")}>
       {isPosting && <Progress value={prog} className="h-1" />}
+
+      {/* Render parent tweet in reply mode */}
+      {mode === "reply" && parentTweet && (
+        <div className="border-b border-zinc-800">
+          <Tweet
+            {...parentTweet}
+            hideInteractions={true}
+            disableNavigation={true}
+          />
+        </div>
+      )}
 
       <div className="flex gap-4 p-4">
         <div>
@@ -119,7 +160,7 @@ export function TweetForm({
                 setInput(e.target.value);
               }}
               className="dark:bg-transparent border-none focus-visible:ring-0 md:text-2xl break-all resize-none placeholder:text-zinc-500/90"
-              placeholder="What's happening?"
+              placeholder={getPlaceholderText()}
               name="tweet"
             />
             <FileUploadComponent
@@ -129,33 +170,23 @@ export function TweetForm({
               maxSizeMB={maxSizeMB.toString()}
             />
             <div className="flex gap-4 items-center">
-              {/* {iconActions.map((action, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={action.onClick}
-              className="p-2 rounded-full hover:bg-muted transition-colors"
-            >
-              <action.icon className="size-5" />
-            </button>
-          ))} */}
               <div className="flex items-center ml-auto ">
                 <CharacterCountIndicator currentLength={input.length} />
                 <Button
                   type="submit"
                   name="_action"
-                  value={"tweeting"}
+                  value={getActionValue()}
                   size={"lg"}
                   className="ml-auto rounded-full"
                   onClick={handleSubmit}
                 >
-                  Post
+                  {getButtonText()}
                 </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

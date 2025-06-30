@@ -1,5 +1,4 @@
-import type { MEDIA_TYPE } from "@prisma-app/client";
-import type { LucideIcon } from "lucide-react";
+import { type TWEET_TYPE, type MEDIA_TYPE } from "@prisma-app/client";
 
 // Tweet types for the application
 export interface Tweet {
@@ -62,3 +61,24 @@ export type IconColors = {
   green: string;
   pink: string;
 };
+
+/**
+ * Type-safe interface for tweet form data
+ */
+export interface TweetFormData {
+  tweet: string;
+  type: TWEET_TYPE;
+  replyToId?: string;
+  media?: string;
+}
+
+/**
+ * Type-safe interface for tweet form submission
+ */
+export interface TweetSubmissionData {
+  content: string;
+  type: TWEET_TYPE;
+  parentTweetId?: string;
+  mediaUrl?: string;
+  mediaType?: MEDIA_TYPE;
+}

@@ -58,7 +58,14 @@ const TweetContent = ({
   );
 };
 
-export const Tweet = ({ tweet }: TweetProps) => {
+export const Tweet = ({
+  tweet,
+  hideInteractions = false,
+  disableNavigation = false,
+}: TweetProps & {
+  hideInteractions?: boolean;
+  disableNavigation?: boolean;
+}) => {
   const {
     id,
     displayName,
@@ -196,6 +203,9 @@ export const Tweet = ({ tweet }: TweetProps) => {
   );
 
   const handleTweetClick = (e: React.MouseEvent) => {
+    if (disableNavigation) {
+      return;
+    }
     // Allow all (including propagated events) unless dataset propagation is set to stop
     let textSelected = window.getSelection()?.toString();
     let target = e.target as HTMLElement;
@@ -245,15 +255,17 @@ export const Tweet = ({ tweet }: TweetProps) => {
     <TweetContent isCurrentTweet={isCurrentTweet} onClick={handleTweetClick}>
       {/* Profile photo */}
       <div className="">
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogContent data-propagation="block" className="p-0">
-            <TweetForm
-              action="/api/post-tweet"
-              modalMode
-              parentTweet={{ tweet }}
-            />
-          </DialogContent>
-        </Dialog>
+        {hideInteractions ? null : (
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogContent data-propagation="block" className="p-0">
+              <TweetForm
+                action="/api/post-tweet"
+                modalMode
+                parentTweet={{ tweet }}
+              />
+            </DialogContent>
+          </Dialog>
+        )}
         <HoverCard openDelay={300} closeDelay={100}>
           <HoverCardTrigger asChild>
             <Link
@@ -335,56 +347,58 @@ export const Tweet = ({ tweet }: TweetProps) => {
         {/* Media  */}
         <MediaDisplay mediaURLs={mediaURLs} data-propagation="block" />
         {/* Buttons and icons */}
-        <div className="grid grid-cols-5 text-zinc-500">
-          {/* TODO: refine types and map over */}
-          <InteractionButton
-            Icon={MessageCircleIcon}
-            color={"blue"}
-            count={replyCount}
-            data-propagation="block"
-            onClick={handleReply}
-          />
-          <InteractionButton
-            Icon={Repeat2}
-            color={"green"}
-            active={localState.retweeted}
-            count={localState.retweetCount + localState.quoteCount}
-            data-propagation="block"
-            iconClassName="group-data-[checked=true]:fill-none group-data-[checked=true]:text-green-500 size-5"
-            onClick={handleRetweet}
-          />
-          <InteractionButton
-            Icon={Heart}
-            color={"pink"}
-            active={localState.liked}
-            count={localState.likeCount}
-            data-propagation="block"
-            onClick={handleLike}
-          />
-
-          <InteractionButton
-            Icon={ChartNoAxesColumn}
-            color={"blue"}
-            count={0}
-            data-propagation="block"
-          />
-          <div className="flex">
+        {hideInteractions ? null : (
+          <div className="grid grid-cols-5 text-zinc-500">
+            {/* TODO: refine types and map over */}
             <InteractionButton
-              Icon={Bookmark}
+              Icon={MessageCircleIcon}
               color={"blue"}
-              count={localState.bookmarkCount}
-              active={localState.bookmarked}
+              count={replyCount}
               data-propagation="block"
-              onClick={handleBookmark}
+              onClick={handleReply}
             />
             <InteractionButton
-              Icon={Share}
+              Icon={Repeat2}
+              color={"green"}
+              active={localState.retweeted}
+              count={localState.retweetCount + localState.quoteCount}
+              data-propagation="block"
+              iconClassName="group-data-[checked=true]:fill-none group-data-[checked=true]:text-green-500 size-5"
+              onClick={handleRetweet}
+            />
+            <InteractionButton
+              Icon={Heart}
+              color={"pink"}
+              active={localState.liked}
+              count={localState.likeCount}
+              data-propagation="block"
+              onClick={handleLike}
+            />
+
+            <InteractionButton
+              Icon={ChartNoAxesColumn}
               color={"blue"}
               count={0}
               data-propagation="block"
             />
+            <div className="flex">
+              <InteractionButton
+                Icon={Bookmark}
+                color={"blue"}
+                count={localState.bookmarkCount}
+                active={localState.bookmarked}
+                data-propagation="block"
+                onClick={handleBookmark}
+              />
+              <InteractionButton
+                Icon={Share}
+                color={"blue"}
+                count={0}
+                data-propagation="block"
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </TweetContent>
   );
