@@ -131,7 +131,7 @@ export function TweetForm({
 
       {/* Render parent tweet in reply mode */}
       {mode === "reply" && parentTweet && (
-        <div className="border-b border-zinc-800">
+        <div className=" border-zinc-800 p-4">
           <Tweet
             {...parentTweet}
             hideInteractions={true}
