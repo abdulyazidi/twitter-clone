@@ -1,7 +1,8 @@
 import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.home._index";
 import { prisma, getUserNewsfeed } from "~/.server/prisma";
-import type { Tweet as TweetType, NewsfeedItem } from "~/lib/types";
+import type { TweetType, NewsfeedItem } from "~/lib/types";
+import { NON_REVALIDATING_API_ENDPOINTS } from "~/lib/types";
 import type { ShouldRevalidateFunctionArgs } from "react-router";
 import { Tweet } from "~/components/tweet";
 import type { MEDIA_TYPE } from "@prisma-app/client";
@@ -10,17 +11,7 @@ export function shouldRevalidate({
   formAction,
   defaultShouldRevalidate,
 }: ShouldRevalidateFunctionArgs) {
-  const neva = [
-    "/api/like",
-    "/api/unlike",
-    "/api/bookmark",
-    "/api/unbookmark",
-    "/api/follow",
-    "/api/unfollow",
-    "/api/retweet",
-    "/api/unretweet",
-  ];
-  if (neva.includes(formAction || "")) {
+  if (NON_REVALIDATING_API_ENDPOINTS.includes(formAction as any)) {
     return false;
   }
   return defaultShouldRevalidate;

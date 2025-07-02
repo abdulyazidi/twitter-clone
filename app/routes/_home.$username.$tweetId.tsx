@@ -3,7 +3,7 @@ import type { Route } from "./+types/_home.$username.$tweetId";
 import { requireAuthRedirect } from "~/.server/auth";
 import { redirect } from "react-router";
 import { prisma } from "~/.server/prisma";
-import type { TweetProps } from "~/lib/types";
+import type { TweetType } from "~/lib/types";
 import { Layout, LeftSide, RightSide } from "~/components/layout";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -69,7 +69,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!tweet) {
     return redirect("/");
   }
-  let returnedTweet: TweetProps["tweet"] = {
+  let returnedTweet: TweetType = {
     id: tweet.id,
     authorId: tweet.authorId,
     username: tweet.author.username,

@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useFetcher } from "react-router";
-import type { Tweet } from "~/lib/types";
+import type { TweetType } from "~/lib/types";
 
 export type LocalState = {
   liked?: boolean | null;
@@ -23,7 +23,7 @@ type TweetActions = {
   handleBookmark: (e: React.MouseEvent) => void;
 };
 
-export function useTweetActions(tweet: Tweet): [LocalState, TweetActions] {
+export function useTweetActions(tweet: TweetType): [LocalState, TweetActions] {
   const {
     authorId,
     bookmarkCount,

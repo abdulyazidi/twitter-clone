@@ -1,5 +1,6 @@
 import type { ShouldRevalidateFunctionArgs } from "react-router";
 import type { Route } from "./+types/_home.home.following";
+import { NON_REVALIDATING_API_ENDPOINTS } from "~/lib/types";
 
 export async function loader({ request }: Route.LoaderArgs) {
   return null;
@@ -16,16 +17,7 @@ export function shouldRevalidate({
   formAction,
   defaultShouldRevalidate,
 }: ShouldRevalidateFunctionArgs) {
-  const neva = [
-    "/api/like",
-    "/api/unlike",
-    "/api/bookmark",
-    "/api/unbookmark",
-    "/api/follow",
-    "/api/unfollow",
-  ];
-  if (neva.includes(formAction || "")) {
-    console.log("shouldRevalidate", formAction);
+  if (NON_REVALIDATING_API_ENDPOINTS.includes(formAction as any)) {
     return false;
   }
   return defaultShouldRevalidate;

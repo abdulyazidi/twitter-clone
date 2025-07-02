@@ -9,6 +9,7 @@ import {
 import { CalendarClock, Image, ImagePlay, Smile } from "lucide-react";
 import { TweetForm } from "~/components/tweet-form";
 import { Layout, LeftSide, RightSide } from "~/components/layout";
+import { NON_REVALIDATING_API_ENDPOINTS } from "~/lib/types";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
@@ -107,16 +108,7 @@ export function shouldRevalidate({
   formAction,
   defaultShouldRevalidate,
 }: ShouldRevalidateFunctionArgs) {
-  const neva = [
-    "/api/like",
-    "/api/unlike",
-    "/api/bookmark",
-    "/api/unbookmark",
-    "/api/follow",
-    "/api/unfollow",
-  ];
-  if (neva.includes(formAction || "")) {
-    console.log("no validation, returning false");
+  if (NON_REVALIDATING_API_ENDPOINTS.includes(formAction as any)) {
     return false;
   }
   return defaultShouldRevalidate;

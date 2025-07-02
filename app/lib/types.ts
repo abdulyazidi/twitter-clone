@@ -1,7 +1,24 @@
 import { type TWEET_TYPE, type MEDIA_TYPE } from "@prisma-app/client";
 
+// API endpoints that should never trigger revalidation
+export const NON_REVALIDATING_API_ENDPOINTS = [
+  "/api/like",
+  "/api/unlike",
+  "/api/bookmark",
+  "/api/unbookmark",
+  "/api/follow",
+  "/api/unfollow",
+  "/api/retweet",
+  "/api/unretweet",
+  "/api/post-tweet",
+] as const;
+
+// Type derived from the constant above - union of string literals
+export type NonRevalidatingApiEndpoint =
+  (typeof NON_REVALIDATING_API_ENDPOINTS)[number];
+
 // Tweet types for the application
-export interface Tweet {
+export interface TweetType {
   id: string;
   authorId: string;
   username: string;
@@ -28,7 +45,7 @@ export interface Tweet {
 
 // Props for Tweet component
 export interface TweetProps {
-  tweet: Tweet;
+  tweet: TweetType;
 }
 
 // Newsfeed data structure from the database query (matches SQL result) // This is useless delete later?
