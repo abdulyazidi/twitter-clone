@@ -21,48 +21,46 @@ export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
   console.log("_home.home._index loader");
   const newsfeed = await prisma.$queryRawTyped(getUserNewsfeed(auth.userId));
-  // console.log(newsfeed);
-  return { newsfeed };
+  let tweetFeed: TweetType[] = newsfeed.map((tweet) => {
+    return {
+      id: tweet.id,
+      authorId: tweet.authorId,
+      username: tweet.authorUsername,
+      displayName: tweet.authorDisplayName,
+      avatarURL: tweet.authorAvatarURL,
+      content: tweet.content,
+      createdAt: tweet.createdAt,
+      likeCount: tweet.likeCount,
+      replyCount: tweet.replyCount,
+      quoteCount: tweet.quoteCount,
+      bookmarkCount: tweet.bookmarkCount,
+      retweetCount: tweet.retweetCount,
+      quotedTweetId: tweet.quotedTweetId,
+      hasLiked: tweet.hasLiked,
+      hasBookmarked: tweet.hasBookmarked,
+      hasRetweetedOrQuoted: tweet.hasRetweetedOrQuoted,
+      type: tweet.type,
+      bio: tweet.authorBio,
+      mediaURLs: tweet.mediaURLs as { url: string; type: MEDIA_TYPE }[] | null,
+      isFollowingAuthor: tweet.isFollowingAuthor,
+      followingCount: tweet.authorFollowingCount,
+      followerCount: tweet.authorFollowerCount,
+    };
+  });
+  return { tweetFeed };
 }
 
 export async function action({ request }: Route.ActionArgs) {
+  const auth = await requireAuthRedirect(request);
   return null;
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { newsfeed } = loaderData;
+  const { tweetFeed } = loaderData;
   return (
     <div>
-      {newsfeed.map((tweet) => {
-        // Transform the newsfeed data to match the Tweet type
-        const tweetData: TweetType = {
-          id: tweet.id,
-          authorId: tweet.authorId,
-          username: tweet.authorUsername,
-          displayName: tweet.authorDisplayName,
-          avatarURL: tweet.authorAvatarURL,
-          content: tweet.content,
-          createdAt: tweet.createdAt,
-          likeCount: tweet.likeCount,
-          replyCount: tweet.replyCount,
-          quoteCount: tweet.quoteCount,
-          bookmarkCount: tweet.bookmarkCount,
-          retweetCount: tweet.retweetCount,
-          quotedTweetId: tweet.quotedTweetId,
-          hasLiked: tweet.hasLiked,
-          hasBookmarked: tweet.hasBookmarked,
-          hasRetweetedOrQuoted: tweet.hasRetweetedOrQuoted,
-          type: tweet.type,
-          bio: tweet.authorBio,
-          mediaURLs: tweet.mediaURLs as
-            | { url: string; type: MEDIA_TYPE }[]
-            | null,
-          isFollowingAuthor: tweet.isFollowingAuthor,
-          followingCount: tweet.authorFollowingCount,
-          followerCount: tweet.authorFollowerCount,
-        };
-
-        return <Tweet key={tweet.id} tweet={tweetData} />;
+      {tweetFeed.map((tweet) => {
+        return <Tweet key={tweet.id} tweet={tweet} />;
       })}
     </div>
   );

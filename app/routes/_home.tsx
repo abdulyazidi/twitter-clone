@@ -27,57 +27,10 @@ import {
 } from "lucide-react";
 import { MessageCircleIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
-
-const sidebarNavItems = [
-  {
-    title: "Home",
-    href: "/home",
-    icon: HomeIcon,
-  },
-  {
-    title: "Explore",
-    href: "/explore",
-    icon: SearchIcon,
-  },
-  {
-    title: "Notifications",
-    href: "/notifications",
-    icon: BellIcon,
-  },
-  {
-    title: "Messages",
-    href: "/messages",
-    icon: MessageCircleIcon,
-  },
-  {
-    title: "Grok",
-    href: "/grok",
-    icon: SparklesIcon,
-  },
-  {
-    title: "Bookmarks",
-    href: "/bookmarks",
-    icon: BookmarkIcon,
-  },
-
-  {
-    title: "Premium",
-    href: "/premium",
-    icon: CrownIcon,
-  },
-  {
-    title: "Profile",
-    href: "/profile",
-    icon: UserIcon,
-  },
-  {
-    title: "More",
-    href: "/more",
-    icon: MoreHorizontalIcon,
-  },
-];
+import { sidebarNavItems } from "~/lib/globals";
 
 // Mock user data - replace with actual user data from your auth system
+// TODO: replace with actual user data from your auth system
 const mockUser = {
   name: "John Doe",
   username: "@johndoe",

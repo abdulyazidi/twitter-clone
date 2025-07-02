@@ -1,6 +1,5 @@
 import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.home";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
   NavLink,
   Outlet,
@@ -31,7 +30,7 @@ const homeNavs = [
     href: "/home/following",
     label: "Following",
   },
-];
+] as const;
 
 const iconActions = [
   {
@@ -50,7 +49,7 @@ const iconActions = [
     icon: CalendarClock,
     onClick: () => console.log("Schedule clicked"),
   },
-];
+] as const;
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   return (
@@ -64,13 +63,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 key={nav.href}
                 to={nav.href}
                 end
-                className={({ isActive }) =>
-                  `flex-1 text-sm px-4 py-4 text-center font-medium transition-colors relative hover:bg-muted/50 ${
-                    isActive
-                      ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-blue-400 after:w-1/6 after:rounded-full after:mx-auto"
-                      : "text-muted-foreground/60"
-                  }`
-                }
+                className={({ isActive }) => {
+                  let activeStyles =
+                    "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-blue-400 after:w-1/6 after:rounded-full after:mx-auto";
+                  let inactiveStyles = "text-muted-foreground/60";
+                  return `flex-1 text-sm px-4 py-4 text-center font-medium transition-colors relative hover:bg-muted/50 ${
+                    isActive ? activeStyles : inactiveStyles
+                  } `;
+                }}
               >
                 {nav.label}
               </NavLink>

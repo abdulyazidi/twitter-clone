@@ -24,6 +24,13 @@ interface TweetFormProps {
   parentTweet?: TweetProps;
 }
 
+/**
+ * TweetForm component
+ * @param action - The action url when the form is submitted
+ * @param modalMode - Whether the form is in modal mode
+ * @param parentTweet - The parent tweet to reply to
+ * @returns
+ */
 export function TweetForm({
   action = "api/post-tweet",
   modalMode,
