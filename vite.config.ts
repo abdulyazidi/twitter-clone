@@ -8,14 +8,4 @@ export default defineConfig({
     port: 3000,
   },
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
-  ssr: {
-    optimizeDeps: {
-      include: ["@prisma-app/client", "@prisma-app/client/sql"],
-    },
-  },
-  build: {
-    rollupOptions: {
-      external: ["@prisma-app/client", "@prisma-app/client/sql"], // 👈 Also here
-    },
-  },
 });

@@ -63,64 +63,72 @@ export function useTweetActions(tweet: Tweet): [LocalState, TweetActions] {
   });
   const fetcher = useFetcher();
 
-  function handleLike(e: React.MouseEvent) {
-    let formData = new FormData();
-    formData.set("tweetId", id);
-    fetcher.submit(formData, {
-      method: "POST",
-      action: state.liked ? "/api/unlike" : "/api/like",
-    });
-    setState((prev) => {
-      let count = prev.liked
-        ? Math.max(0, prev.likeCount - 1)
-        : prev.likeCount + 1;
-      return {
-        ...prev,
-        liked: !prev.liked,
-        likeCount: count,
-      };
-    });
-  }
+  const handleLike = useCallback(
+    (e: React.MouseEvent) => {
+      let formData = new FormData();
+      formData.set("tweetId", id);
+      fetcher.submit(formData, {
+        method: "POST",
+        action: state.liked ? "/api/unlike" : "/api/like",
+      });
+      setState((prev) => {
+        let count = prev.liked
+          ? Math.max(0, prev.likeCount - 1)
+          : prev.likeCount + 1;
+        return {
+          ...prev,
+          liked: !prev.liked,
+          likeCount: count,
+        };
+      });
+    },
+    [id, state.liked, state.likeCount]
+  );
+  const handleFollow = useCallback(
+    (e: React.MouseEvent) => {
+      let formData = new FormData();
+      formData.set("authorId", authorId);
+      fetcher.submit(formData, {
+        method: "POST",
+        action: state.isFollowingAuthor ? "/api/unfollow" : "/api/follow",
+        preventScrollReset: true,
+      });
+      setState((prev) => {
+        let count = prev.isFollowingAuthor
+          ? Math.max(0, prev.followerCount - 1)
+          : prev.followerCount + 1;
+        return {
+          ...prev,
+          isFollowingAuthor: !prev.isFollowingAuthor,
+          followerCount: count,
+        };
+      });
+    },
+    [authorId, state.isFollowingAuthor, state.followerCount]
+  );
 
-  function handleFollow(e: React.MouseEvent) {
-    let formData = new FormData();
-    formData.set("authorId", authorId);
-    fetcher.submit(formData, {
-      method: "POST",
-      action: state.isFollowingAuthor ? "/api/unfollow" : "/api/follow",
-      preventScrollReset: true,
-    });
-    setState((prev) => {
-      let count = prev.isFollowingAuthor
-        ? Math.max(0, prev.followerCount - 1)
-        : prev.followerCount + 1;
-      return {
-        ...prev,
-        isFollowingAuthor: !prev.isFollowingAuthor,
-        followerCount: count,
-      };
-    });
-  }
-
-  function handleBookmark(e: React.MouseEvent) {
-    let formData = new FormData();
-    formData.set("tweetId", id);
-    fetcher.submit(formData, {
-      method: "POST",
-      action: state.bookmarked ? "/api/unbookmark" : "/api/bookmark",
-      preventScrollReset: true,
-    });
-    setState((prev) => {
-      let count = prev.bookmarked
-        ? Math.max(0, prev.bookmarkCount - 1)
-        : prev.bookmarkCount + 1;
-      return {
-        ...prev,
-        bookmarked: !prev.bookmarked,
-        bookmarkCount: count,
-      };
-    });
-  }
+  const handleBookmark = useCallback(
+    (e: React.MouseEvent) => {
+      let formData = new FormData();
+      formData.set("tweetId", id);
+      fetcher.submit(formData, {
+        method: "POST",
+        action: state.bookmarked ? "/api/unbookmark" : "/api/bookmark",
+        preventScrollReset: true,
+      });
+      setState((prev) => {
+        let count = prev.bookmarked
+          ? Math.max(0, prev.bookmarkCount - 1)
+          : prev.bookmarkCount + 1;
+        return {
+          ...prev,
+          bookmarked: !prev.bookmarked,
+          bookmarkCount: count,
+        };
+      });
+    },
+    [state.bookmarked, id, state.bookmarkCount]
+  );
 
   function handleRetweet(e: React.MouseEvent) {
     // make quotes

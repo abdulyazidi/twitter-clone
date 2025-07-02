@@ -93,6 +93,7 @@ export const Tweet = ({
   const isCurrentTweet = location.pathname === `/@${username}/${id}`;
   const tweetUrl = `/@${username}/${id}`;
   const [state, tweetActions] = useTweetActions(tweet);
+
   const { handleRetweet, handleLike, handleFollow, handleBookmark } =
     tweetActions;
 
