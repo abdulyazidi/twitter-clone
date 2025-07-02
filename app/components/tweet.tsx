@@ -14,9 +14,13 @@ import { cn } from "~/lib/utils";
 import type { TweetProps } from "~/lib/types";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { MediaDisplay } from "./media-display";
-import { InteractionButton } from "./interaction-button";
+import {
+  InteractionButton,
+  type InteractionButtonProps,
+} from "./interaction-button";
 import { Dialog, DialogContent } from "./ui/dialog";
 import { TweetForm } from "./tweet-form";
+import { useTweetActions } from "~/hooks/use-tweet-actions";
 
 interface TweetContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -30,27 +34,17 @@ const TweetContent = ({
   onClick,
   ...props
 }: TweetContentProps) => {
-  if (isCurrentTweet) {
-    return (
-      <div
-        className={cn(
-          "flex gap-2 py-2 px-4 border-zinc-900 border-b",
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-
+  let styles = !isCurrentTweet
+    ? "cursor-pointer hover:bg-zinc-900/30 transition-colors"
+    : "";
   return (
     <div
       className={cn(
-        "flex gap-2 py-2 px-4 border-zinc-900 border-b cursor-pointer hover:bg-zinc-900/30 transition-colors",
+        "flex gap-2 py-2 px-4 border-zinc-900 border-b",
+        styles,
         className
       )}
-      onClick={onClick}
+      onClick={!isCurrentTweet ? onClick : undefined}
       {...props}
     >
       {children}
@@ -98,92 +92,9 @@ export const Tweet = ({
   // Check if we're currently viewing this specific tweet
   const isCurrentTweet = location.pathname === `/@${username}/${id}`;
   const tweetUrl = `/@${username}/${id}`;
-
-  const [localState, setLocalState] = useState<{
-    liked: typeof hasLiked;
-    likeCount: typeof likeCount;
-    bookmarked: typeof hasBookmarked;
-    bookmarkCount: typeof bookmarkCount;
-    retweeted: typeof hasRetweetedOrQuoted;
-    retweetCount: typeof retweetCount;
-    isFollowingAuthor: typeof isFollowingAuthor;
-    followingCount: typeof followingCount;
-    followerCount: typeof followerCount;
-    quoteCount: typeof quoteCount;
-    replyCount: typeof replyCount;
-  }>({
-    liked: hasLiked,
-    likeCount: likeCount,
-    bookmarked: hasBookmarked,
-    bookmarkCount: bookmarkCount,
-    retweeted: hasRetweetedOrQuoted,
-    retweetCount: retweetCount,
-    isFollowingAuthor: isFollowingAuthor,
-    followingCount: followingCount,
-    followerCount: followerCount,
-    quoteCount: quoteCount,
-    replyCount: replyCount,
-  });
-
-  // can make them all 1 function but i like it this way for this
-  function handleLike(e: React.MouseEvent) {
-    let formData = new FormData();
-    formData.set("tweetId", id);
-    fetcher.submit(formData, {
-      method: "POST",
-      action: localState.liked ? "/api/unlike" : "/api/like",
-    });
-    setLocalState((prev) => {
-      let count = prev.liked
-        ? Math.max(0, prev.likeCount - 1)
-        : prev.likeCount + 1;
-      return {
-        ...prev,
-        liked: !prev.liked,
-        likeCount: count,
-      };
-    });
-  }
-
-  function handleFollow(e: React.MouseEvent) {
-    let formData = new FormData();
-    formData.set("authorId", authorId);
-    fetcher.submit(formData, {
-      method: "POST",
-      action: localState.isFollowingAuthor ? "/api/unfollow" : "/api/follow",
-      preventScrollReset: true,
-    });
-    setLocalState((prev) => {
-      let count = prev.isFollowingAuthor
-        ? Math.max(0, prev.followerCount - 1)
-        : prev.followerCount + 1;
-      return {
-        ...prev,
-        isFollowingAuthor: !prev.isFollowingAuthor,
-        followerCount: count,
-      };
-    });
-  }
-
-  function handleBookmark(e: React.MouseEvent) {
-    let formData = new FormData();
-    formData.set("tweetId", id);
-    fetcher.submit(formData, {
-      method: "POST",
-      action: localState.bookmarked ? "/api/unbookmark" : "/api/bookmark",
-      preventScrollReset: true,
-    });
-    setLocalState((prev) => {
-      let count = prev.bookmarked
-        ? Math.max(0, prev.bookmarkCount - 1)
-        : prev.bookmarkCount + 1;
-      return {
-        ...prev,
-        bookmarked: !prev.bookmarked,
-        bookmarkCount: count,
-      };
-    });
-  }
+  const [state, tweetActions] = useTweetActions(tweet);
+  const { handleRetweet, handleLike, handleFollow, handleBookmark } =
+    tweetActions;
 
   const DateHoverCard = () => (
     <HoverCardContent className="">
@@ -226,26 +137,6 @@ export const Tweet = ({
     navigate(tweetUrl);
   };
 
-  function handleRetweet(e: React.MouseEvent) {
-    // make quotes
-    let formData = new FormData();
-    formData.set("tweetId", id);
-    fetcher.submit(formData, {
-      method: "POST",
-      action: localState.retweeted ? "/api/unretweet" : "/api/retweet",
-    });
-    setLocalState((prev) => {
-      let count = prev.retweeted
-        ? Math.max(0, prev.retweetCount - 1)
-        : prev.retweetCount + 1;
-      return {
-        ...prev,
-        retweeted: !prev.retweeted,
-        retweetCount: count,
-      };
-    });
-  }
-
   const [isOpen, setIsOpen] = useState<boolean>(false);
   function handleReply(e: React.MouseEvent) {
     setIsOpen(!isOpen);
@@ -285,9 +176,9 @@ export const Tweet = ({
             displayName={displayName || ""}
             handleFollow={handleFollow}
             localState={{
-              isFollowingAuthor: localState.isFollowingAuthor || false,
-              followingCount: localState.followingCount || 0,
-              followerCount: localState.followerCount || 0,
+              isFollowingAuthor: state.isFollowingAuthor || false,
+              followingCount: state.followingCount || 0,
+              followerCount: state.followerCount || 0,
             }}
             bio={bio || ""}
             data-propagation="block"
@@ -322,9 +213,9 @@ export const Tweet = ({
               displayName={displayName || ""}
               handleFollow={handleFollow}
               localState={{
-                isFollowingAuthor: localState.isFollowingAuthor || false,
-                followingCount: localState.followingCount || 0,
-                followerCount: localState.followerCount || 0,
+                isFollowingAuthor: state.isFollowingAuthor || false,
+                followingCount: state.followingCount || 0,
+                followerCount: state.followerCount || 0,
               }}
               bio={bio || ""}
               data-propagation="block"
@@ -360,8 +251,8 @@ export const Tweet = ({
             <InteractionButton
               Icon={Repeat2}
               color={"green"}
-              active={localState.retweeted}
-              count={localState.retweetCount + localState.quoteCount}
+              active={state.retweeted}
+              count={state.retweetCount + state.quoteCount}
               data-propagation="block"
               iconClassName="group-data-[checked=true]:fill-none group-data-[checked=true]:text-green-500 size-5"
               onClick={handleRetweet}
@@ -369,8 +260,8 @@ export const Tweet = ({
             <InteractionButton
               Icon={Heart}
               color={"pink"}
-              active={localState.liked}
-              count={localState.likeCount}
+              active={state.liked}
+              count={state.likeCount}
               data-propagation="block"
               onClick={handleLike}
             />
@@ -385,8 +276,8 @@ export const Tweet = ({
               <InteractionButton
                 Icon={Bookmark}
                 color={"blue"}
-                count={localState.bookmarkCount}
-                active={localState.bookmarked}
+                count={state.bookmarkCount}
+                active={state.bookmarked}
                 data-propagation="block"
                 onClick={handleBookmark}
               />

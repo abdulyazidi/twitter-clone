@@ -5,7 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import type { IconColors } from "~/lib/types";
 import type React from "react";
 
-interface InteractionButtonProps extends React.ComponentProps<"button"> {
+export interface InteractionButtonProps extends React.ComponentProps<"button"> {
   color: keyof IconColors;
   count: number;
   Icon: LucideIcon;
