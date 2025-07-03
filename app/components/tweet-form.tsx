@@ -20,8 +20,9 @@ type TweetFormMode = "post" | "reply";
 
 interface TweetFormProps {
   action?: string;
-  modalMode?: boolean;
   parentTweet?: TweetProps;
+  modalMode?: boolean;
+  onModalOpenChange?: (open: boolean) => void;
 }
 
 /**
@@ -35,6 +36,7 @@ export function TweetForm({
   action = "api/post-tweet",
   modalMode,
   parentTweet,
+  onModalOpenChange,
 }: TweetFormProps) {
   // Determine mode based on whether parentTweet exists
   const mode: TweetFormMode = parentTweet ? "reply" : "post";
@@ -80,6 +82,7 @@ export function TweetForm({
         fileUploadActions.clearFiles();
         setIsPosting(false);
         setProg(0);
+        onModalOpenChange?.(false);
       }, 250);
     }
 

@@ -154,6 +154,7 @@ export const Tweet = ({
                 action="/api/post-tweet"
                 modalMode
                 parentTweet={{ tweet }}
+                onModalOpenChange={setIsOpen}
               />
             </DialogContent>
           </Dialog>
