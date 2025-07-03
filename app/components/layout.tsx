@@ -36,9 +36,7 @@ export const LeftSide = ({ children, className }: SideProps) => {
 export const RightSide = ({ children, className }: SideProps) => {
   return (
     <div className={cn("col-span-1 hidden md:block ", className)}>
-      <div className="sticky top-0 bg-card border rounded-lg h-screen overflow-y-auto">
-        {children}
-      </div>
+      <div className="sticky top-0 h-screen  rounded-lg">{children}</div>
     </div>
   );
 };

@@ -11,6 +11,17 @@ import {
 } from "lucide-react";
 import type { IconColors } from "./types";
 
+export const homeNavs = [
+  {
+    href: "/home",
+    label: "For you",
+  },
+  {
+    href: "/home/following",
+    label: "Following",
+  },
+] as const;
+
 export const iconColors: IconColors = {
   blue: "group hover:text-blue-400 hover:!bg-blue-400/10 data-[checked=true]:text-blue-400",
   green:

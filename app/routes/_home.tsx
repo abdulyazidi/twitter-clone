@@ -1,31 +1,8 @@
 import type { Route } from "./+types/_home";
-import {
-  NavLink,
-  Outlet,
-  type ShouldRevalidateFunctionArgs,
-} from "react-router";
-import {
-  SidebarProvider,
-  SidebarInset,
-  SidebarTrigger,
-} from "~/components/ui/sidebar";
-import { Separator } from "~/components/ui/separator";
+import { NavLink, Outlet } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import {
-  BellIcon,
-  HomeIcon,
-  SettingsIcon,
-  TwitterIcon,
-  SearchIcon,
-  BookmarkIcon,
-  UserIcon,
-  MoreHorizontalIcon,
-  SparklesIcon,
-  UsersIcon,
-  CrownIcon,
-} from "lucide-react";
-import { MessageCircleIcon } from "lucide-react";
+import { TwitterIcon, MoreHorizontalIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { sidebarNavItems } from "~/lib/globals";
 
@@ -70,20 +47,22 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 <NavLink
                   key={item.href}
                   to={item.href}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center justify-center lg:justify-start rounded-full py-2 lg:p-1 group relative ",
-                      isActive && "font-bold"
-                    )
-                  }
+                  className="flex items-center justify-center lg:justify-start rounded-full py-2 lg:p-1 group relative"
                 >
                   {({ isActive }) => (
                     <>
-                      <div className="flex items-center gap-4 text-xl p-2 lg:px-4 lg:py-2 rounded-full group-hover:bg-accent w-fit">
+                      <div
+                        className={cn(
+                          "flex items-center gap-4 text-xl p-2 lg:px-4 lg:py-2 rounded-full group-hover:bg-accent w-fit",
+                          isActive && "font-bold "
+                        )}
+                      >
                         <item.icon
-                          className="size-5 lg:size-7 shrink-0"
+                          className={cn(
+                            "size-5 lg:size-7 shrink-0",
+                            isActive && "fill-current "
+                          )}
                           strokeWidth={isActive ? 2.5 : 2}
-                          fill={isActive ? "currentColor" : "none"}
                         />
                         <span
                           className={cn(
