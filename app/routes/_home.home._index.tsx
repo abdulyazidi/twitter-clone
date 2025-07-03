@@ -7,14 +7,15 @@ import type { ShouldRevalidateFunctionArgs } from "react-router";
 import { Tweet } from "~/components/tweet";
 import type { MEDIA_TYPE } from "@prisma-app/client";
 
-export function shouldRevalidate({
-  formAction,
-  defaultShouldRevalidate,
-}: ShouldRevalidateFunctionArgs) {
-  if (NON_REVALIDATING_API_ENDPOINTS.includes(formAction as any)) {
-    return false;
-  }
-  return defaultShouldRevalidate;
+export default function Page({ loaderData }: Route.ComponentProps) {
+  const { tweetFeed } = loaderData;
+  return (
+    <div>
+      {tweetFeed.map((tweet) => {
+        return <Tweet key={tweet.id} tweet={tweet} />;
+      })}
+    </div>
+  );
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -55,13 +56,12 @@ export async function action({ request }: Route.ActionArgs) {
   return null;
 }
 
-export default function Page({ loaderData }: Route.ComponentProps) {
-  const { tweetFeed } = loaderData;
-  return (
-    <div>
-      {tweetFeed.map((tweet) => {
-        return <Tweet key={tweet.id} tweet={tweet} />;
-      })}
-    </div>
-  );
+export function shouldRevalidate({
+  formAction,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  if (NON_REVALIDATING_API_ENDPOINTS.includes(formAction as any)) {
+    return false;
+  }
+  return defaultShouldRevalidate;
 }

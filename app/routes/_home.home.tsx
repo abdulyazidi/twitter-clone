@@ -12,17 +12,6 @@ import { homeNavs } from "~/lib/globals";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const auth = await requireAuthRedirect(request);
-  console.log("_home.home loader ran");
-  return null;
-}
-
-export async function action({ request }: Route.ActionArgs) {
-  const auth = await requireAuthRedirect(request);
-  return null;
-}
-
 export default function Page({ loaderData }: Route.ComponentProps) {
   return (
     <Layout>
@@ -146,6 +135,17 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       </RightSide>
     </Layout>
   );
+}
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const auth = await requireAuthRedirect(request);
+  console.log("_home.home loader ran");
+  return null;
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const auth = await requireAuthRedirect(request);
+  return null;
 }
 
 export function shouldRevalidate({

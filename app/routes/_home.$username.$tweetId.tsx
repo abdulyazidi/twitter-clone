@@ -6,6 +6,19 @@ import { prisma } from "~/.server/prisma";
 import type { TweetType } from "~/lib/types";
 import { Layout, LeftSide, RightSide } from "~/components/layout";
 
+export default function Page({ loaderData }: Route.ComponentProps) {
+  return (
+    <Layout>
+      <LeftSide>
+        <Tweet tweet={loaderData.returnedTweet} />
+      </LeftSide>
+      <RightSide>
+        <div>Right Side</div>
+      </RightSide>
+    </Layout>
+  );
+}
+
 export async function loader({ request, params }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
   const { username, tweetId } = params;
@@ -96,17 +109,4 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request }: Route.ActionArgs) {
   return null;
-}
-
-export default function Page({ loaderData }: Route.ComponentProps) {
-  return (
-    <Layout>
-      <LeftSide>
-        <Tweet tweet={loaderData.returnedTweet} />
-      </LeftSide>
-      <RightSide>
-        <div>Right Side</div>
-      </RightSide>
-    </Layout>
-  );
 }

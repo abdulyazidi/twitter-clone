@@ -14,42 +14,6 @@ import {
 } from "~/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
-  // Ensure the user is authenticated and return their data
-  const auth = await requireAuthRedirect(request);
-  return {
-    email: auth.email,
-    username: auth.username,
-    avatarURL: auth.avatarURL,
-  };
-}
-
-export async function action({ request, params }: Route.ActionArgs) {
-  // Add your action logic here
-  const auth = await requireAuthRedirect(request);
-  try {
-    const user = await prisma.session.update({
-      where: {
-        sessionId: auth.sessionId,
-        userId: auth.userId,
-      },
-      data: {
-        expiresAt: new Date(Date.now() - 1000),
-      },
-    });
-    console.log("successful logout");
-  } catch (error) {
-    console.error("Error updating session");
-  }
-  return redirect("/", {
-    headers: {
-      "Set-Cookie": await authCookie.serialize("", {
-        maxAge: 0,
-      }),
-    },
-  });
-}
-
 export default function LogoutPage({ loaderData }: Route.ComponentProps) {
   const { email, username, avatarURL } = loaderData;
   return (
@@ -92,4 +56,40 @@ export default function LogoutPage({ loaderData }: Route.ComponentProps) {
       </div>
     </div>
   );
+}
+
+export async function loader({ request, params }: Route.LoaderArgs) {
+  // Ensure the user is authenticated and return their data
+  const auth = await requireAuthRedirect(request);
+  return {
+    email: auth.email,
+    username: auth.username,
+    avatarURL: auth.avatarURL,
+  };
+}
+
+export async function action({ request, params }: Route.ActionArgs) {
+  // Add your action logic here
+  const auth = await requireAuthRedirect(request);
+  try {
+    const user = await prisma.session.update({
+      where: {
+        sessionId: auth.sessionId,
+        userId: auth.userId,
+      },
+      data: {
+        expiresAt: new Date(Date.now() - 1000),
+      },
+    });
+    console.log("successful logout");
+  } catch (error) {
+    console.error("Error updating session");
+  }
+  return redirect("/", {
+    headers: {
+      "Set-Cookie": await authCookie.serialize("", {
+        maxAge: 0,
+      }),
+    },
+  });
 }

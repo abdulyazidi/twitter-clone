@@ -18,7 +18,7 @@ export async function action({ request }: Route.ActionArgs) {
   const auth = await requireAuthRedirect(request);
   const formData = await request.formData();
 
-  // Type-safe form data extraction
+  // Type-safe form data extraction -- just use zod to validate the form data i guess?
   const data = extractFormData(formData, [FORM_FIELDS.TWEET_ID] as const);
   if (!data) {
     console.warn("Invalid form data for bookmark action");
