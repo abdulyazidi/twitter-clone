@@ -177,7 +177,6 @@ export function validate_signup_form({
     formErrors.hasErrors = true;
   }
 
-  // TODO: Add validator.isStrongPassword helper to validate password
   if (!validator.isStrongPassword(password)) {
     formErrors.password =
       "Must contain atleast 8 characters, including 1 uppercase and 1 special character";
