@@ -22,7 +22,10 @@ export async function action({ request }: Route.ActionArgs) {
   const data = extractFormData(formData, [FORM_FIELDS.TWEET_ID] as const);
   if (!data) {
     console.warn("Invalid form data for bookmark action");
-    return { success: false, error: "Missing required fields" };
+    return Response.json(
+      { success: false, error: "Missing required fields" },
+      { status: 400 }
+    );
   }
 
   const { tweetId } = data; // TypeScript knows tweetId is a string
@@ -42,20 +45,32 @@ export async function action({ request }: Route.ActionArgs) {
     });
     console.log(`Tweet ${tweetId} bookmarked by ${auth.userId}`);
 
-    return { success: true, error: null };
+    return Response.json({ success: true, error: null }, { status: 200 });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === "P2002") {
         console.log(`${tweetId} already bookmarked by ${auth.userId}`);
-        return { success: false, error: "Already bookmarked" };
+        return Response.json(
+          { success: false, error: "Already bookmarked" },
+          { status: 409 }
+        );
       } else if (err.code === "P2025") {
         console.warn(
           `Attempt to bookmark non-existent tweet ${tweetId} or by non-existent user ${auth.userId}`
         );
-        return { success: false, error: "Tweet or user not found" };
+        return Response.json(
+          {
+            success: false,
+            error: `Tweet or user not found; error code: ${err.code}`,
+          },
+          { status: 404 }
+        );
       }
     }
     console.error(err);
-    return { success: false, error: "Internal server error" };
+    return Response.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

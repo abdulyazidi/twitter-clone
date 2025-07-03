@@ -4,15 +4,22 @@ import { prisma } from "~/.server/prisma";
 import { Prisma } from "@prisma-app/client";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
+  const auth = await requireAuthRedirect(request);
   return null;
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  // TODO: fix the returns
   const auth = await requireAuthRedirect(request);
   const formData = await request.formData();
   const tweetId = formData.get("tweetId")?.toString();
-  if (!tweetId) return null;
+
+  if (!tweetId) {
+    return Response.json(
+      { success: false, error: "Tweet ID is required" },
+      { status: 400 }
+    );
+  }
+
   try {
     await prisma.tweet.update({
       where: {
@@ -31,18 +38,26 @@ export async function action({ request }: Route.ActionArgs) {
       },
     });
     console.log(`Tweet ${tweetId} removed from bookmarks by ${auth.userId}`);
-    return true;
+    return Response.json({ success: true, error: null }, { status: 200 });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === "P2017") {
         console.warn(
           `Attempt to remove a bookmark on non-existent bookmark, tweet or user\ntweet id:  ${tweetId} userId: ${auth.userId}`
         );
-        return null;
+        return Response.json(
+          {
+            success: false,
+            error: `Failed to unbookmark tweet; error code: ${err.code}`,
+          },
+          { status: 404 }
+        );
       }
     }
     console.error(err);
-    return null;
+    return Response.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    );
   }
-  return null;
 }

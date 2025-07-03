@@ -97,7 +97,7 @@ export async function action({ request }: Route.ActionArgs) {
 
       if (!parentTweet) {
         return Response.json(
-          { error: "Parent tweet not found" },
+          { success: false, error: "Parent tweet not found" },
           { status: 404 }
         );
       }
@@ -121,6 +121,7 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     console.log(`${tweetData.type.toLowerCase()} posted`, postedTweet);
+    return Response.json({ success: true, error: null }, { status: 200 });
   } catch (error) {
     const reader = request.body?.getReader();
     if (reader) {
@@ -131,20 +132,24 @@ export async function action({ request }: Route.ActionArgs) {
     }
     if (error instanceof MaxFilesExceededError) {
       console.error(`Request may not contain more than 1 file`);
-      return Response.json({ error: "Too many files" }, { status: 400 });
+      return Response.json(
+        { success: false, error: "Too many files" },
+        { status: 400 }
+      );
     } else if (error instanceof MaxFileSizeExceededError) {
       console.error(`Files may not be larger than 5GB`);
-      return Response.json({ error: "File too large" }, { status: 413 });
+      return Response.json(
+        { success: false, error: "File too large" },
+        { status: 413 }
+      );
     } else {
       console.error(`An unknown error occurred:`, error);
       return Response.json(
-        { error: error instanceof Error ? error.message : "Upload failed" },
+        { success: false, error: "Internal server error" },
         { status: 500 }
       );
     }
   }
-
-  return Response.json({ success: true }, { status: 200 });
 }
 
 const BYTES_TO_MB = 1024 * 1024;

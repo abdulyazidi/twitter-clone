@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+never return the AuthCookie in a loader or action or any client facing endpoint
+```tsx
+const auth = await requireAuthRedirect(request)
+```
