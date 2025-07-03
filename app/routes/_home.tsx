@@ -1,5 +1,5 @@
 import type { Route } from "./+types/_home";
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet, Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { TwitterIcon, MoreHorizontalIcon } from "lucide-react";
@@ -61,7 +61,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               {sidebarNavItems.map((item) => (
                 <NavLink
                   key={item.href}
-                  to={item.href}
+                  to={
+                    item.title === "Profile" ? `/@${user.username}` : item.href
+                  }
                   className="flex items-center justify-center lg:justify-start rounded-full py-2 lg:p-1 group relative"
                 >
                   {({ isActive }) => (
@@ -109,7 +111,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
         {/* User Profile Section - Always Visible */}
         <div className="flex-shrink-0 p-1 lg:p-3 border-t border-border">
-          <div className="flex items-center justify-center lg:justify-start gap-3 p-2 lg:p-3 rounded-full hover:bg-accent transition-colors cursor-pointer">
+          <Link
+            to={`/@${user.username}`}
+            className="flex items-center justify-center lg:justify-start gap-3 p-2 lg:p-3 rounded-full hover:bg-accent transition-colors cursor-pointer"
+          >
             <Avatar className="size-8 lg:size-10">
               <AvatarImage
                 src={user.avatarURL ?? undefined}
@@ -131,7 +136,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </p>
             </div>
             <MoreHorizontalIcon className="hidden lg:block size-5 text-muted-foreground" />
-          </div>
+          </Link>
         </div>
       </div>
 

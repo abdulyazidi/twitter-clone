@@ -3,6 +3,9 @@ import type { Route } from "./+types/_home.home";
 import {
   NavLink,
   Outlet,
+  useLocation,
+  useNavigate,
+  useNavigation,
   type ShouldRevalidateFunctionArgs,
 } from "react-router";
 import { TweetForm } from "~/components/tweet-form";
@@ -11,34 +14,23 @@ import { NON_REVALIDATING_API_ENDPOINTS } from "~/lib/types";
 import { homeNavs } from "~/lib/globals";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import { HeaderNewsFeedTabs, StickyHeader } from "~/components/sticky-header";
 
 export default function Page({ loaderData }: Route.ComponentProps) {
+  const navigation = useNavigation();
+  const location = useLocation();
   return (
     <Layout>
       <LeftSide>
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
-          <div className="flex">
-            {homeNavs.map((nav) => (
-              <NavLink
-                key={nav.href}
-                to={nav.href}
-                end
-                className={({ isActive }) => {
-                  let activeStyles =
-                    "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-blue-400 after:w-1/6 after:rounded-full after:mx-auto";
-                  let inactiveStyles = "text-muted-foreground/60";
-
-                  return `flex-1 text-sm px-4 py-4 text-center font-medium transition-colors relative hover:bg-muted/50 ${
-                    isActive ? activeStyles : inactiveStyles
-                  } `;
-                }}
-              >
-                {nav.label}
-              </NavLink>
-            ))}
-          </div>
-        </div>
+        <StickyHeader>
+          <HeaderNewsFeedTabs />
+          <Button
+            onClick={() => {
+              console.log(navigation);
+            }}
+          ></Button>
+        </StickyHeader>
 
         {/* Main */}
         <main className="divide-y divide-border ">

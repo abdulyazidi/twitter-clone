@@ -1,10 +1,11 @@
 import { Tweet } from "~/components/tweet";
-import type { Route } from "./+types/_home.$username.$tweetId";
+import type { Route } from "./+types/_home.$username_.$tweetId";
 import { requireAuthRedirect } from "~/.server/auth";
 import { redirect } from "react-router";
 import { prisma } from "~/.server/prisma";
 import type { TweetType } from "~/lib/types";
 import { Layout, LeftSide, RightSide } from "~/components/layout";
+import { StickyHeader } from "~/components/sticky-header";
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { returnedTweet, replies } = loaderData;
