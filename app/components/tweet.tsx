@@ -274,7 +274,7 @@ export const Tweet = ({
               count={0}
               data-propagation="block"
             />
-            <div className="flex">
+            <div className="grid grid-cols-2">
               <InteractionButton
                 Icon={Bookmark}
                 color={"blue"}

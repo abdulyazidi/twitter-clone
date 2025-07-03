@@ -14,7 +14,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <Tweet tweet={returnedTweet} />
         <div className="flex flex-col gap-4">
           {replies.map((reply) => (
-            <Tweet tweet={reply} />
+            <Tweet tweet={reply} key={reply.id} />
           ))}
         </div>
       </LeftSide>
@@ -86,6 +86,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         },
       },
       replies: {
+        orderBy: {
+          createdAt: "desc",
+        },
         include: {
           author: {
             select: {
