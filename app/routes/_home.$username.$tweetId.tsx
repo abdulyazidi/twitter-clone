@@ -7,10 +7,16 @@ import type { TweetType } from "~/lib/types";
 import { Layout, LeftSide, RightSide } from "~/components/layout";
 
 export default function Page({ loaderData }: Route.ComponentProps) {
+  const { returnedTweet, replies } = loaderData;
   return (
     <Layout>
       <LeftSide>
-        <Tweet tweet={loaderData.returnedTweet} />
+        <Tweet tweet={returnedTweet} />
+        <div className="flex flex-col gap-4">
+          {replies.map((reply) => (
+            <Tweet tweet={reply} />
+          ))}
+        </div>
       </LeftSide>
       <RightSide>
         <div>Right Side</div>
@@ -25,6 +31,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!username || !tweetId) {
     return redirect("/");
   }
+
+  // Fix this query and make it by typedSQL prisma
   const tweet = await prisma.tweet.findUnique({
     where: {
       id: tweetId,
@@ -77,6 +85,39 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           authorId: auth.userId,
         },
       },
+      replies: {
+        include: {
+          author: {
+            select: {
+              username: true,
+              profile: true,
+              followersCount: true,
+              followingCount: true,
+            },
+          },
+          media: {
+            select: {
+              url: true,
+              type: true,
+            },
+          },
+          likes: {
+            where: {
+              userId: auth.userId,
+            },
+          },
+          Bookmark: {
+            where: {
+              userId: auth.userId,
+            },
+          },
+          retweets: {
+            where: {
+              authorId: auth.userId,
+            },
+          },
+        },
+      },
     },
   });
   if (!tweet) {
@@ -104,7 +145,31 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     hasRetweetedOrQuoted: tweet.retweets.length > 0,
     isFollowingAuthor: tweet.author.followers.length > 0,
   };
-  return { returnedTweet };
+  let replies: TweetType[] = tweet.replies.map((t) => {
+    return {
+      id: t.id,
+      authorId: t.authorId,
+      username: t.author.username,
+      displayName: t.author.profile?.displayName ?? t.author.username,
+      avatarURL: t.author.profile?.avatarURL,
+      createdAt: t.createdAt,
+      content: t.content,
+      likeCount: t.likeCount,
+      replyCount: t.replyCount,
+      quoteCount: t.quoteCount,
+      retweetCount: t.retweetCount,
+      bookmarkCount: t.bookmarkCount,
+      followingCount: t.author.followingCount,
+      followerCount: t.author.followersCount,
+      bio: t.author.profile?.bio,
+      mediaURLs: t.media,
+      hasLiked: t.likes.length > 0,
+      hasBookmarked: t.Bookmark.length > 0,
+      hasRetweetedOrQuoted: t.retweets.length > 0,
+      isFollowingAuthor: false,
+    };
+  });
+  return { returnedTweet, replies };
 }
 
 export async function action({ request }: Route.ActionArgs) {

@@ -11,6 +11,15 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react";
 
+export type UserType = {
+  username: string;
+  displayName: string;
+  avatarURL?: string | null;
+  bio?: string | null;
+  location?: string | null;
+  website?: string | null;
+};
+
 // API endpoints that should never trigger revalidation
 export const NON_REVALIDATING_API_ENDPOINTS = [
   "/api/like",

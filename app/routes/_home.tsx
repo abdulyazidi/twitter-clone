@@ -5,20 +5,34 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { TwitterIcon, MoreHorizontalIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { sidebarNavItems } from "~/lib/globals";
-
-// Mock user data - replace with actual user data from your auth system
-// TODO: replace with actual user data from your auth system
-const mockUser = {
-  name: "John Doe",
-  username: "@johndoe",
-  avatar:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
-};
+import { requireAuthRedirect } from "~/.server/auth";
+import { prisma } from "~/.server/prisma";
+import type { UserType } from "~/lib/types";
 
 export async function loader({ request }: Route.LoaderArgs) {
   console.log("_home layout ran");
-
-  return null;
+  const auth = await requireAuthRedirect(request);
+  const userProfile = await prisma.userProfile.findUnique({
+    where: {
+      userId: auth.userId,
+    },
+    select: {
+      displayName: true,
+      avatarURL: true,
+      bio: true,
+      location: true,
+      website: true,
+    },
+  });
+  const user: UserType = {
+    username: auth.username,
+    displayName: userProfile?.displayName ?? auth.username,
+    avatarURL: userProfile?.avatarURL,
+    bio: userProfile?.bio,
+    location: userProfile?.location,
+    website: userProfile?.website,
+  };
+  return { user };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -26,6 +40,7 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
+  const { user } = loaderData;
   return (
     <div className="grid grid-cols-10 grid-flow-col mx-auto max-w-7xl min-h-screen ">
       {/* sidebar */}
@@ -96,9 +111,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <div className="flex-shrink-0 p-1 lg:p-3 border-t border-border">
           <div className="flex items-center justify-center lg:justify-start gap-3 p-2 lg:p-3 rounded-full hover:bg-accent transition-colors cursor-pointer">
             <Avatar className="size-8 lg:size-10">
-              <AvatarImage src={mockUser.avatar} alt={mockUser.name} />
+              <AvatarImage
+                src={user.avatarURL ?? undefined}
+                alt={user.displayName}
+              />
               <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-xs lg:text-sm">
-                {mockUser.name
+                {user.displayName
                   .split(" ")
                   .map((n) => n[0])
                   .join("")}
@@ -106,10 +124,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             </Avatar>
             <div className="hidden lg:block flex-1 min-w-0">
               <p className="font-bold text-sm truncate text-foreground">
-                {mockUser.name}
+                {user.displayName}
               </p>
               <p className="text-muted-foreground text-sm truncate">
-                {mockUser.username}
+                {user.username}
               </p>
             </div>
             <MoreHorizontalIcon className="hidden lg:block size-5 text-muted-foreground" />
