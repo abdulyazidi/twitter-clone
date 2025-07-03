@@ -22,6 +22,39 @@ export const homeNavs = [
   },
 ] as const;
 
+export const profileTabs = [
+  {
+    label: "Posts",
+    key: "posts",
+    isDefault: true,
+  },
+  {
+    label: "Replies",
+    key: "replies",
+    isDefault: false,
+  },
+  {
+    label: "Highlights",
+    key: "highlights",
+    isDefault: false,
+  },
+  {
+    label: "Articles",
+    key: "articles",
+    isDefault: false,
+  },
+  {
+    label: "Media",
+    key: "media",
+    isDefault: false,
+  },
+  {
+    label: "Likes",
+    key: "likes",
+    isDefault: false,
+  },
+] as const;
+
 export const iconColors: IconColors = {
   blue: "group hover:text-blue-400 hover:!bg-blue-400/10 data-[checked=true]:text-blue-400",
   green:
