@@ -1,13 +1,13 @@
 import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.$username";
-import { getUserProfileByUsername, getUserTweets } from "~/.server/feed";
-import { Outlet, redirect, NavLink } from "react-router";
+import { getUserProfileByUsername } from "~/.server/feed";
+import { redirect, NavLink, Outlet } from "react-router";
 import { Layout, LeftSide, RightSide } from "~/components/layout";
 import { HeaderPersonalTabs, StickyHeader } from "~/components/sticky-header";
 import { profileTabs } from "~/lib/globals";
 import { cn } from "~/lib/utils";
 import { Tweet } from "~/components/tweet";
-import type { TweetType } from "~/lib/types";
+import { getUserTweets } from "~/.server/feed";
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { user, tweets } = loaderData;
