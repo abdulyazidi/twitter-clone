@@ -91,7 +91,7 @@ export const Tweet = ({
 
   // Check if we're currently viewing this specific tweet
   const isCurrentTweet = location.pathname === `/@${username}/${id}`;
-  const tweetUrl = `/@${username}/${id}`;
+  const tweetUrl = `/@${username}/tweet/${id}`;
   const [state, tweetActions] = useTweetActions(tweet);
 
   const { handleRetweet, handleLike, handleFollow, handleBookmark } =

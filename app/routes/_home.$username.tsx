@@ -1,16 +1,14 @@
 import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.$username";
-import { getUserProfileByUsername, getUserTweets } from "~/.server/feed";
+import { getUserProfileByUsername } from "~/.server/feed";
 import { Outlet, redirect, NavLink } from "react-router";
 import { Layout, LeftSide, RightSide } from "~/components/layout";
 import { HeaderPersonalTabs, StickyHeader } from "~/components/sticky-header";
 import { profileTabs } from "~/lib/globals";
 import { cn } from "~/lib/utils";
-import { Tweet } from "~/components/tweet";
-import type { TweetType } from "~/lib/types";
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { user, tweets } = loaderData;
+  const { user } = loaderData;
   const { _count } = user;
 
   return (
@@ -129,12 +127,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   "text-muted-foreground hover:text-foreground";
                 let href = tab.isDefault
                   ? `/@${user.username}`
-                  : `/@${user.username}?${tab.key}`;
+                  : `/@${user.username}/${tab.key}`;
 
                 return (
                   <NavLink
                     key={tab.key}
                     to={href}
+                    end={tab.isDefault}
                     className={({ isActive }) =>
                       cn(
                         "flex-1 px-4 py-4 font-medium hover:bg-accent transition-colors",
@@ -150,11 +149,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </div>
 
           {/* Posts Content */}
-          <div className="border-t ">
-            {tweets.map((t) => {
-              return <Tweet tweet={t} />;
-            })}
-          </div>
+          <main className="border-t ">
+            <Outlet />
+          </main>
         </LeftSide>
         <RightSide>
           <div className="block top-0"></div>
@@ -169,8 +166,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   console.log("BRO");
   const auth = await requireAuthRedirect(request);
   let username = params.username;
+  console.log({ username });
   if (username.startsWith("@")) {
-    username = username.slice(1);
+    username = username.substring(1);
+    console.log({ username, params });
   } else throw redirect("/404");
 
   const user = await getUserProfileByUsername({
@@ -179,9 +178,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   });
   if (!user) throw redirect("/404");
 
-  const tweets = await getUserTweets(user.id, auth.userId);
-
-  return { user, tweets };
+  return { user };
 }
 
 export async function action({ request }: Route.ActionArgs) {
