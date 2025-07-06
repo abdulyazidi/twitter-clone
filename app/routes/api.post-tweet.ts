@@ -103,6 +103,7 @@ export async function action({ request }: Route.ActionArgs) {
       }
     }
 
+
     const postedTweet = await prisma.tweet.create({
       data: {
         type: tweetData.type,
@@ -117,9 +118,22 @@ export async function action({ request }: Route.ActionArgs) {
               },
             }
           : undefined,
+        
       },
     });
-
+    
+    if(tweetData.type === "REPLY"){
+      const updateCount = await prisma.tweet.update({
+        where: {
+          id: tweetData.replyToId
+        },
+        data: {
+          replyCount: ({increment: 1})
+        }
+      })
+      console.log('Tweet counter updated')
+    }
+    
     console.log(`${tweetData.type.toLowerCase()} posted`, postedTweet);
     return Response.json({ success: true, error: null }, { status: 200 });
   } catch (error) {

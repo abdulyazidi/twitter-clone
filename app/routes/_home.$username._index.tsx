@@ -1,6 +1,6 @@
 import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.$username._index";
-import { getUserTweets } from "~/.server/feed";
+import { getUserTweets } from "~/.server/queries";
 import { Tweet } from "~/components/tweet";
 
 export default function Page({ loaderData }: Route.ComponentProps) {

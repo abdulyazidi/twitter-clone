@@ -17,6 +17,7 @@ export type LocalState = {
 };
 
 type TweetActions = {
+  handleReply: (e: React.MouseEvent) => void;
   handleRetweet: (e: React.MouseEvent) => void;
   handleLike: (e: React.MouseEvent) => void;
   handleFollow: (e: React.MouseEvent) => void;
@@ -62,6 +63,10 @@ export function useTweetActions(tweet: TweetType): [LocalState, TweetActions] {
     replyCount: replyCount,
   });
   const fetcher = useFetcher();
+
+  const handleReply = useCallback((e:React.MouseEvent) => {
+    return null
+  }, [])
 
   const handleLike = useCallback(
     (e: React.MouseEvent) => {
@@ -150,5 +155,7 @@ export function useTweetActions(tweet: TweetType): [LocalState, TweetActions] {
     });
   }
 
-  return [state, { handleRetweet, handleLike, handleFollow, handleBookmark }];
+
+
+  return [state, { handleRetweet, handleLike, handleFollow, handleBookmark, handleReply }];
 }

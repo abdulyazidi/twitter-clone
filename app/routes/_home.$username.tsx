@@ -1,6 +1,6 @@
 import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.$username";
-import { getUserProfileByUsername } from "~/.server/feed";
+import { getUserProfileByUsername } from "~/.server/queries";
 import { Outlet, redirect, NavLink } from "react-router";
 import { Layout, LeftSide, RightSide } from "~/components/layout";
 import { HeaderPersonalTabs, StickyHeader } from "~/components/sticky-header";
