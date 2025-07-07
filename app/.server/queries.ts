@@ -1,23 +1,45 @@
 import type { TweetType } from "~/lib/types";
 import { prisma } from "./prisma";
-
+import { Prisma } from "@prisma-app/client";
 /**
  * Get the tweets for the user
- * @param userId - The ID of the user to get the tweets for
- * @param userId2 - The ID of the user who made the request(optional)
+ * @param targetId - The ID of the user to get the tweets for
+ * @param userId - The ID of the user who made the request(optional)
  * @returns The tweets for the user
  */
 export async function getUserTweets(
-  userId: string,
-  userId2?: string
+  targetId: string,
+  userId2?: string,
+  tab?: "posts" | "replies" | "media" | "likes"
 ): Promise<TweetType[]> {
   // Fix this later -- this is a temporary thing to get the tweets for the user
+  let queryFilter: Prisma.TweetWhereInput = {};
+
+  switch (tab) {
+    case "likes":
+      queryFilter = {
+        likes: {
+          every: {
+            userId: targetId,
+          },
+          none: {
+            AND: {
+              tweet: {
+                author: {},
+              },
+            },
+          },
+        },
+      };
+      break;
+
+    default:
+      break;
+  }
+
   const tweets = await prisma.tweet.findMany({
     where: {
-      authorId: userId,
-      type: {
-        in: ["TWEET", "QUOTE_TWEET", "RETWEET"],
-      },
+      ...queryFilter,
     },
     orderBy: {
       createdAt: "desc",
