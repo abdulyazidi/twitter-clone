@@ -144,7 +144,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     followingCount: tweet.author.followingCount,
     followerCount: tweet.author.followersCount,
     bio: tweet.author.profile?.bio,
-    mediaURLs: tweet.media,
+    media: tweet.media,
     hasRetweetedOrQuoted: tweet.retweets.length > 0,
     isFollowingAuthor: tweet.author.followers.length > 0,
   };
@@ -165,7 +165,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       followingCount: t.author.followingCount,
       followerCount: t.author.followersCount,
       bio: t.author.profile?.bio,
-      mediaURLs: t.media,
+      media: t.media,
       hasLiked: t.likes.length > 0,
       hasBookmarked: t.Bookmark.length > 0,
       hasRetweetedOrQuoted: t.retweets.length > 0,

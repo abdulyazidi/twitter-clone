@@ -57,7 +57,7 @@ export interface TweetType {
   hasBookmarked?: boolean | null;
   hasRetweetedOrQuoted?: boolean | null;
   type?: string;
-  mediaURLs?: { url: string; type: MEDIA_TYPE }[] | null;
+  media: { url: string; type: MEDIA_TYPE }[] | [] | null;
   isFollowingAuthor?: boolean | null;
   followingCount: number;
   followerCount: number;

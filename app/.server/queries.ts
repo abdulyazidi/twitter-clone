@@ -14,6 +14,7 @@ export interface GetTweetFeed {
  * Get the tweets for the user
  * @param targetId - The ID of the user to get the tweets for
  * @param userId - The ID of the user who made the request(optional)
+ * @param type - feed type ex: user's likes, replies or media
  * @returns The tweets for the user
  */
 export async function gatTweetFeed({
@@ -28,15 +29,8 @@ export async function gatTweetFeed({
     case "likes":
       queryFilter = {
         likes: {
-          every: {
+          some: {
             userId: targetId,
-          },
-          none: {
-            tweet: {
-              author: {
-                isPrivate: true,
-              },
-            },
           },
         },
       };
@@ -46,7 +40,7 @@ export async function gatTweetFeed({
       break;
   }
 
-  const time = Date.now();
+  // TODO: Pagination - infinite scroll
   const tweets = await prisma.tweet.findMany({
     where: {
       ...queryFilter,
@@ -88,9 +82,7 @@ export async function gatTweetFeed({
     },
     take: 20,
   });
-  const now = Date.now() - time;
-  console.log({ time, now });
-  // fix later -- typedsql query
+  // fix later -- typedsql query?
   const restructuredTweets: TweetType[] = tweets.map((t) => {
     const media = t.media;
     const author = t.author;
@@ -118,11 +110,11 @@ export async function gatTweetFeed({
       isRetweeted: t.retweets.length > 0,
       isLiked: t.likes.length > 0,
       // Counters
-      likeCount: t.likes.length,
-      retweetCount: t.retweets.length,
-      bookmarkCount: t.Bookmark.length,
-      replyCount: 0,
-      quoteCount: 0,
+      likeCount: t.likeCount,
+      retweetCount: t.retweetCount,
+      bookmarkCount: t.bookmarkCount,
+      replyCount: t.replyCount,
+      quoteCount: t.quoteCount,
       followingCount: author.followingCount,
       followerCount: author.followersCount,
     };

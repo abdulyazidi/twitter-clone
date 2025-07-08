@@ -7,6 +7,7 @@ import {
   type GetTweetFeed,
 } from "~/.server/queries";
 import { Tweet } from "~/components/tweet";
+import { prisma } from "~/.server/prisma";
 
 export default function TabPage({ loaderData, params }: Route.ComponentProps) {
   const { data, error } = loaderData;
@@ -27,10 +28,21 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const { username, tab } = params;
   if (!FEED_TYPES.includes(tab as FeedType))
     throw { data: null, error: "Invalid Feed Type" };
+  console.log({ tab });
+  const target = await prisma.user.findUniqueOrThrow({
+    where: {
+      username: username.trim().toLowerCase().slice(1),
+    },
+    select: {
+      id: true,
+    },
+  });
   const feed = await gatTweetFeed({
-    targetId: params.username,
+    targetId: target.id,
+    userId: auth.userId,
     type: tab as FeedType,
   });
+  console.log(feed);
   return { data: feed, error: null };
 }
 

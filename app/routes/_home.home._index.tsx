@@ -42,7 +42,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       hasRetweetedOrQuoted: tweet.hasRetweetedOrQuoted,
       type: tweet.type,
       bio: tweet.authorBio,
-      mediaURLs: tweet.mediaURLs as { url: string; type: MEDIA_TYPE }[] | null,
+      media: tweet.mediaURLs as { url: string; type: MEDIA_TYPE }[],
       isFollowingAuthor: tweet.isFollowingAuthor,
       followingCount: tweet.authorFollowingCount,
       followerCount: tweet.authorFollowerCount,

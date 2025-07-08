@@ -79,7 +79,7 @@ export const Tweet = ({
     hasRetweetedOrQuoted,
     quotedTweetId,
     bio,
-    mediaURLs,
+    media,
     isFollowingAuthor,
     followingCount,
     followerCount,
@@ -238,7 +238,7 @@ export const Tweet = ({
         </div>
         <p className="text-sm whitespace-pre-wrap">{content || ""}</p>
         {/* Media  */}
-        <MediaDisplay mediaURLs={mediaURLs} data-propagation="block" />
+        <MediaDisplay mediaURLs={media} data-propagation="block" />
         {/* Buttons and icons */}
         {hideInteractions ? null : (
           <div className="grid grid-cols-5 text-zinc-500">
