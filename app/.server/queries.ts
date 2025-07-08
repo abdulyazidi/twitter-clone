@@ -46,6 +46,7 @@ export async function gatTweetFeed({
       break;
   }
 
+  const time = Date.now();
   const tweets = await prisma.tweet.findMany({
     where: {
       ...queryFilter,
@@ -85,8 +86,10 @@ export async function gatTweetFeed({
       },
       media: true,
     },
+    take: 20,
   });
-
+  const now = Date.now() - time;
+  console.log({ time, now });
   // fix later -- typedsql query
   const restructuredTweets: TweetType[] = tweets.map((t) => {
     const media = t.media;

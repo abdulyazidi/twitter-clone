@@ -37,3 +37,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   return null;
 }
+
+export function ErrorBoundary() {
+  return <div>ERRORRR</div>;
+}
