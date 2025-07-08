@@ -1,21 +1,30 @@
 import type { TweetType } from "~/lib/types";
 import { prisma } from "./prisma";
 import { Prisma } from "@prisma-app/client";
+
+export const FEED_TYPES = ["posts", "replies", "media", "likes"] as const;
+export type FeedType = (typeof FEED_TYPES)[number];
+export interface GetTweetFeed {
+  targetId: string;
+  userId?: string;
+  type: FeedType;
+}
+
 /**
  * Get the tweets for the user
  * @param targetId - The ID of the user to get the tweets for
  * @param userId - The ID of the user who made the request(optional)
  * @returns The tweets for the user
  */
-export async function getUserTweets(
-  targetId: string,
-  userId2?: string,
-  tab?: "posts" | "replies" | "media" | "likes"
-): Promise<TweetType[]> {
+export async function gatTweetFeed({
+  targetId,
+  userId,
+  type,
+}: GetTweetFeed): Promise<TweetType[]> {
   // Fix this later -- this is a temporary thing to get the tweets for the user
   let queryFilter: Prisma.TweetWhereInput = {};
 
-  switch (tab) {
+  switch (type) {
     case "likes":
       queryFilter = {
         likes: {
@@ -23,9 +32,9 @@ export async function getUserTweets(
             userId: targetId,
           },
           none: {
-            AND: {
-              tweet: {
-                author: {},
+            tweet: {
+              author: {
+                isPrivate: true,
               },
             },
           },
@@ -61,17 +70,17 @@ export async function getUserTweets(
       },
       Bookmark: {
         where: {
-          userId: userId2,
+          userId: userId,
         },
       },
       retweets: {
         where: {
-          authorId: userId2,
+          authorId: userId,
         },
       },
       likes: {
         where: {
-          userId: userId2,
+          userId: userId,
         },
       },
       media: true,
