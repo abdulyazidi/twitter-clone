@@ -33,6 +33,20 @@ export async function gatTweetFeed({
             userId: targetId,
           },
         },
+        author: {
+          OR: [
+            {
+              isPrivate: false,
+            },
+            {
+              followers: {
+                some: {
+                  followerId: userId,
+                },
+              },
+            },
+          ],
+        },
       };
       break;
 
@@ -42,9 +56,7 @@ export async function gatTweetFeed({
 
   // TODO: Pagination - infinite scroll
   const tweets = await prisma.tweet.findMany({
-    where: {
-      ...queryFilter,
-    },
+    where: {},
     orderBy: {
       createdAt: "desc",
     },

@@ -5,9 +5,30 @@ import { exit } from "process";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-const usersWithPostCounts = await prisma.$queryRawTyped(
-  getUserNewsfeed("01JYGTZKF7RZYCJ2REHE651ERX")
-);
-console.log(usersWithPostCounts);
+async function makePrivate(username: string) {
+  const user = await prisma.user.update({
+    where: {
+      username,
+    },
+    data: {
+      isPrivate: false,
+    },
+  });
+  return user;
+}
 
+async function getFollowers(username: string) {
+  return await prisma.user.findFirst({
+    where: {
+      username,
+    },
+    include: {
+      following: true,
+      followers: true,
+    },
+  });
+}
+let followers = await getFollowers("test");
+await makePrivate("test");
+console.log(followers);
 exit();
