@@ -35,6 +35,23 @@ export async function gatTweetFeed({
         },
       };
       break;
+    case "media": {
+      queryFilter = {
+        media: {
+          some: {},
+        },
+      };
+      break;
+    }
+    case "posts": {
+      queryFilter = {};
+      break;
+    }
+    case "replies": {
+      queryFilter = {
+        type: "REPLY",
+      };
+    }
 
     default:
       break;
@@ -43,6 +60,7 @@ export async function gatTweetFeed({
   // TODO: Pagination - infinite scroll
   const tweets = await prisma.tweet.findMany({
     where: {
+      authorId: targetId,
       author: {
         OR: [
           {
