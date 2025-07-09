@@ -18,17 +18,44 @@ async function makePrivate(username: string) {
 }
 
 async function getFollowers(username: string) {
-  return await prisma.user.findFirst({
+  return await prisma.user.findUnique({
     where: {
       username,
+      OR: [
+        {
+          isPrivate: true,
+          followers: {
+            some: {
+              follower: {
+                username: "example",
+              },
+            },
+          },
+        },
+        {
+          isPrivate: false,
+        },
+      ],
     },
     include: {
-      followers: true,
-      following: true,
+      followers: {
+        select: {
+          follower: {
+            select: {
+              username: true,
+            },
+          },
+          following: {
+            select: {
+              username: true,
+            },
+          },
+        },
+      },
     },
   });
 }
 let followers = await getFollowers("priv");
-// await makePrivate("priv");
+await makePrivate("priv");
 console.log(followers);
 exit();
