@@ -42,23 +42,28 @@ export async function action({ request }: Route.ActionArgs) {
       }
 
       // Create the follow relationship
-      await tx.follow.create({
-        data: {
-          followerId: auth.userId,
-          followingId: authorId,
-        },
+      const createNewFollow = tx.user.update({
+        where: {
+          id: auth.userId
+        }, data: {
+          following: {
+            create: {
+              followingId: authorId
+            },
+          },
+          followingCount: {increment: 1}
+        }
       });
+
+      const updateTargetCoutner = tx.user.update({
+        where: { id: authorId },
+        data: { followersCount: { increment: 1 } },
+      })
 
       // Update counters
       await Promise.all([
-        tx.user.update({
-          where: { id: auth.userId },
-          data: { followingCount: { increment: 1 } },
-        }),
-        tx.user.update({
-          where: { id: authorId },
-          data: { followersCount: { increment: 1 } },
-        }),
+        createNewFollow,
+        updateTargetCoutner,
       ]);
 
       console.log(`User ${authorId} followed by ${auth.userId}`);

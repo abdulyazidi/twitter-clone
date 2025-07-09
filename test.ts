@@ -11,7 +11,7 @@ async function makePrivate(username: string) {
       username,
     },
     data: {
-      isPrivate: false,
+      isPrivate: true,
     },
   });
   return user;
@@ -23,12 +23,12 @@ async function getFollowers(username: string) {
       username,
     },
     include: {
-      following: true,
       followers: true,
+      following: true,
     },
   });
 }
-let followers = await getFollowers("test");
-await makePrivate("test");
+let followers = await getFollowers("priv");
+// await makePrivate("priv");
 console.log(followers);
 exit();

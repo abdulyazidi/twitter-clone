@@ -25,11 +25,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         {/* Header */}
         <StickyHeader>
           <HeaderNewsFeedTabs />
-          <Button
-            onClick={() => {
-              console.log(navigation);
-            }}
-          ></Button>
+
         </StickyHeader>
 
         {/* Main */}

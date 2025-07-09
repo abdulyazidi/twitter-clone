@@ -64,9 +64,9 @@ model Mention {
 model Follow {
   followerId  String
   followingId String
-
-  follower  User @relation(name: "followers", fields: [followerId], references: [id], onDelete: Cascade)
-  following User @relation(name: "following", fields: [followingId], references: [id], onDelete: Cascade)
+  // keep it 
+  follower  User @relation(name: "following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation(name: "followers", fields: [followingId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
