@@ -216,7 +216,7 @@ export async function getUserProfileByUsername({
 
 /**
  * Get a user ID by username
- * @param username - The username of the user to get the ID of (without the @)
+ * @param username - The username of the user to get the ID of (without the \@)
  * @returns The user ID or null if does not exist or errored
  */
 export async function getUserIdByUsername(
