@@ -23,7 +23,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               }`}
             />
           </StickyHeader>
-
+          user private: {`${user.isPrivate}`}
           {/* Profile Header */}
           <div className="relative">
             {/* Cover Photo */}
@@ -41,7 +41,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </button>
             </div>
           </div>
-
           {/* Profile Info */}
           <div className="mt-20 px-4">
             <div className="mb-4">
@@ -117,7 +116,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
           </div>
-
           {/* Navigation Tabs */}
           <div className="border-b border-border">
             <div className="flex">
@@ -147,7 +145,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               })}
             </div>
           </div>
-
           {/* Posts Content */}
           <main className="border-t ">
             <Outlet />

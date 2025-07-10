@@ -37,19 +37,24 @@ export async function gatTweetFeed({
       break;
     case "media": {
       queryFilter = {
+        authorId: targetId,
         media: {
+          // this will if it's atleast 1 media linked
           some: {},
         },
       };
       break;
     }
     case "posts": {
-      queryFilter = {};
+      queryFilter = {
+        authorId: targetId,
+      };
       break;
     }
     case "replies": {
       queryFilter = {
         type: "REPLY",
+        authorId: targetId,
       };
     }
 
@@ -60,7 +65,7 @@ export async function gatTweetFeed({
   // TODO: Pagination - infinite scroll
   const tweets = await prisma.tweet.findMany({
     where: {
-      authorId: targetId,
+      ...queryFilter,
       author: {
         OR: [
           {
@@ -79,7 +84,6 @@ export async function gatTweetFeed({
           },
         ],
       },
-      ...queryFilter,
     },
     orderBy: {
       createdAt: "desc",
@@ -208,4 +212,27 @@ export async function getUserProfileByUsername({
     },
   });
   return user;
+}
+
+/**
+ * Get a user ID by username
+ * @param username - The username of the user to get the ID of (without the @)
+ * @returns The user ID or null if does not exist or errored
+ */
+export async function getUserIdByUsername(
+  username: string
+): Promise<string | null> {
+  try {
+    const target = await prisma.user.findUniqueOrThrow({
+      where: {
+        username: username.trim().toLowerCase(),
+      },
+      select: {
+        id: true,
+      },
+    });
+    return target.id;
+  } catch (error) {
+    return null;
+  }
 }

@@ -1,6 +1,6 @@
 import { requireAuthRedirect } from "~/.server/auth";
 import type { Route } from "./+types/_home.$username._index";
-import { gatTweetFeed } from "~/.server/queries";
+import { gatTweetFeed, getUserIdByUsername } from "~/.server/queries";
 import { Tweet } from "~/components/tweet";
 
 export default function Page({ loaderData }: Route.ComponentProps) {
@@ -16,8 +16,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const auth = await requireAuthRedirect(request);
+  const targetId = await getUserIdByUsername(params.username.slice(1));
+  if (!targetId) throw new Error("User not found");
   const tweets = await gatTweetFeed({
-    targetId: params.username,
+    targetId: targetId,
     type: "posts",
     userId: auth.userId,
   });

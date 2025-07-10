@@ -5,13 +5,13 @@ import { exit } from "process";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-async function makePrivate(username: string) {
+async function makePrivate(username: string, priv: boolean) {
   const user = await prisma.user.update({
     where: {
       username,
     },
     data: {
-      isPrivate: true,
+      isPrivate: priv,
     },
   });
   return user;
@@ -56,6 +56,6 @@ async function getFollowers(username: string) {
   });
 }
 let followers = await getFollowers("priv");
-await makePrivate("priv");
+await makePrivate("example", false);
 console.log(followers);
 exit();
