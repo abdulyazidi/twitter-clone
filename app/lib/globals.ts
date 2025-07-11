@@ -33,16 +33,7 @@ export const profileTabs = [
     key: "replies",
     isDefault: false,
   },
-  {
-    label: "Highlights",
-    key: "highlights",
-    isDefault: false,
-  },
-  {
-    label: "Articles",
-    key: "articles",
-    isDefault: false,
-  },
+
   {
     label: "Media",
     key: "media",

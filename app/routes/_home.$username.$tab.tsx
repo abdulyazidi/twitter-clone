@@ -16,7 +16,7 @@ export default function TabPage({ loaderData, params }: Route.ComponentProps) {
     <div>
       hello {params.tab} tab
       {data.map((t) => (
-        <Tweet tweet={t} />
+        <Tweet tweet={t} key={t.id} />
       ))}
     </div>
   );

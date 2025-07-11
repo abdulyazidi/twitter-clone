@@ -18,9 +18,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           <StickyHeader>
             <HeaderPersonalTabs
               title={user.profile?.displayName || user.username}
-              subtitle={`${_count.tweets} ${
-                _count.tweets > 1 ? "posts" : "post"
-              }`}
+              subtitle={`${_count.tweets} ${_count.tweets > 1 ? "posts" : "post"
+                }`}
             />
           </StickyHeader>
           user private: {`${user.isPrivate}`}
@@ -118,7 +117,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </div>
           {/* Navigation Tabs */}
           <div className="border-b border-border">
-            <div className="flex">
+            <div className="flex text-center">
               {profileTabs.map((tab) => {
                 let activeStyles = "text-foreground border-b-2 border-primary";
                 let inactiveStyles =
@@ -132,6 +131,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     key={tab.key}
                     to={href}
                     end={tab.isDefault}
+                    preventScrollReset
                     className={({ isActive }) =>
                       cn(
                         "flex-1 px-4 py-4 font-medium hover:bg-accent transition-colors",
