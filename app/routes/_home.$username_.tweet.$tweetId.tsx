@@ -80,9 +80,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       },
       retweets: {
         where: {
-          retweetedTweetId: tweetId,
-          type: "RETWEET",
-          authorId: auth.userId,
+          tweetId,
+          userId: auth.userId,
         },
       },
       replies: {
@@ -116,7 +115,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           },
           retweets: {
             where: {
-              authorId: auth.userId,
+              userId: auth.userId,
             },
           },
         },

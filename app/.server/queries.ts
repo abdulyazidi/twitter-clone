@@ -108,11 +108,7 @@ export async function gatTweetFeed({
           userId: userId,
         },
       },
-      retweets: {
-        where: {
-          authorId: userId,
-        },
-      },
+
       likes: {
         where: {
           userId: userId,
@@ -144,10 +140,10 @@ export async function gatTweetFeed({
       updatedAt: t.updatedAt,
       // Has/Boolean Flags
       hasBookmarked: t.Bookmark.length > 0,
-      hasRetweeted: t.retweets.length > 0,
+      hasRetweeted: t.quotedTweetId,
       hasLiked: t.likes.length > 0,
       isBookmarked: t.Bookmark.length > 0,
-      isRetweeted: t.retweets.length > 0,
+      isRetweeted: t.quotedTweetId,
       isLiked: t.likes.length > 0,
       // Counters
       likeCount: t.likeCount,

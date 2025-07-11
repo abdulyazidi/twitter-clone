@@ -27,8 +27,7 @@ export async function action({ request }: Route.ActionArgs) {
         retweetCount: { increment: 1 },
         retweets: {
           create: {
-            type: "RETWEET",
-            authorId: auth.userId,
+            userId: auth.userId,
           },
         },
       },

@@ -27,10 +27,9 @@ export async function action({ request }: Route.ActionArgs) {
         retweetCount: { decrement: 1 },
         retweets: {
           delete: {
-            unique_retweet: {
-              authorId: auth.userId,
-              retweetedTweetId: tweetId,
-              type: "RETWEET",
+            userId_tweetId: {
+              userId: auth.userId,
+              tweetId: tweetId,
             },
           },
         },

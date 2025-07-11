@@ -44,7 +44,7 @@ export function useTweetActions(tweet: TweetType): [LocalState, TweetActions] {
     content,
     hasBookmarked,
     hasLiked,
-    mediaURLs,
+    media,
     quotedTweetId,
     hasRetweetedOrQuoted,
     type,
@@ -64,9 +64,9 @@ export function useTweetActions(tweet: TweetType): [LocalState, TweetActions] {
   });
   const fetcher = useFetcher();
 
-  const handleReply = useCallback((e:React.MouseEvent) => {
-    return null
-  }, [])
+  const handleReply = useCallback((e: React.MouseEvent) => {
+    return null;
+  }, []);
 
   const handleLike = useCallback(
     (e: React.MouseEvent) => {
@@ -155,7 +155,8 @@ export function useTweetActions(tweet: TweetType): [LocalState, TweetActions] {
     });
   }
 
-
-
-  return [state, { handleRetweet, handleLike, handleFollow, handleBookmark, handleReply }];
+  return [
+    state,
+    { handleRetweet, handleLike, handleFollow, handleBookmark, handleReply },
+  ];
 }

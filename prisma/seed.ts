@@ -248,8 +248,8 @@ async function main() {
     const quoteCount = await prisma.tweet.count({
       where: { quotedTweetId: tweet.id },
     });
-    const retweetCount = await prisma.tweet.count({
-      where: { retweetedTweetId: tweet.id },
+    const retweetCount = await prisma.retweet.count({
+      where: { tweetId: tweet.id },
     });
 
     await prisma.tweet.update({

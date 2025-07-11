@@ -30,7 +30,11 @@ SELECT
     ELSE FALSE
   END AS "hasBookmarked",
   CASE
-    WHEN rt."authorId" IS NOT NULL THEN TRUE
+    WHEN rt."userId" IS NOT NULL OR EXISTS (
+      SELECT 1 FROM "Tweet" qt_check 
+      WHERE qt_check."authorId" = $1 
+      AND qt_check."quotedTweetId" = t.id
+    ) THEN TRUE
     ELSE FALSE
   END AS "hasRetweetedOrQuoted",
   CASE
@@ -66,11 +70,8 @@ FROM
   AND l."userId" = $1
   LEFT JOIN "Bookmark" AS b ON b."tweetId" = t.id
   AND b."userId" = $1
-  LEFT JOIN "Tweet" AS rt ON rt."authorId" = $1
-  AND (
-    rt."retweetedTweetId" = t.id
-    OR rt."quotedTweetId" = t.id
-  )
+  LEFT JOIN "Retweet" AS rt ON rt."userId" = $1
+  AND rt."tweetId" = t.id
   -- Join to check the current user's follow status on the tweet author
   LEFT JOIN "Follow" AS f_status ON f_status."followerId" = $1
   AND f_status."followingId" = u.id
@@ -97,7 +98,7 @@ GROUP BY
   up."userId",
   l."userId",
   b."userId",
-  rt."authorId",
+  rt."userId",
   qt.id,
   q_author.id,
   q_author_profile."userId",
