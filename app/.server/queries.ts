@@ -47,7 +47,18 @@ export async function gatTweetFeed({
     }
     case "posts": {
       queryFilter = {
-        authorId: targetId,
+        OR: [
+          {
+            authorId: targetId,
+          },
+          {
+            retweets: {
+              some: {
+                userId: targetId,
+              },
+            },
+          },
+        ],
       };
       break;
     }
